@@ -1,0 +1,17 @@
+export default color = {
+  'whiteOpct08': 'rgba(255,255,255,0.8)',
+  'whiteOpct05': 'rgba(255,255,255,0.5)',
+  'lightBlue': '#24978d',
+  'black': '#000',
+  'red': '#FF0000',
+  'white': '#fff',
+  'aaa': '#aaa',
+  'bbb': '#bbb',
+  'ccc': '#ccc',
+  'ddd': '#ddd',
+  'eee': '#eee',
+  'starRateColor': '#ffae00',
+  'themeColor': '#ff315a',
+  'profileBox': 'rgba(153,75,90,1)',
+  'forgotTxtColor': '#9c9faf',
+}
