@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     forwardButton: {
         height: 60,
         width: 60,
-        backgroundColor: '#54575e',
+        backgroundColor: '#3a5562',
         borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center'

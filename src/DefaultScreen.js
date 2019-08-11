@@ -14,7 +14,6 @@ class DefualtScreen extends Component {
   }
 
   redirectToApp() {
-    console.log(this.props)
     if (this.props.userData && this.props.userData.userId) {
       this.resetAction("Home");
     }

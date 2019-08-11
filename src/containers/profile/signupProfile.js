@@ -4,7 +4,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Dialog, { SlideAnimation, DialogContent } from 'react-native-popup-dialog';
 import ImagePicker from 'react-native-image-picker';
 
-export default class ProfileInfo extends Component {
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as userActions from './../../actions/userActions';
+
+class ProfileInfo extends Component {
 
     constructor(props) {
         super(props);
@@ -13,8 +17,9 @@ export default class ProfileInfo extends Component {
             imageSelector: false,
             isImageSelected: false,
             isUserNameValid: true,
-            imageData: '',
+            imageData: null,
             userName: '',
+            imagePath: null,
             mobileNo: params.mobileNo,
             callingCode: params.callingCode
         }
@@ -29,10 +34,31 @@ export default class ProfileInfo extends Component {
     }
 
     signupUser() {
-        if (!this.state.userName.trim()) {
+
+        let { userName, callingCode, mobileNo, imagePath, imageData } = this.state;
+
+        if (!userName.trim()) {
             this.setState({ isUserNameValid: false });
         } else {
 
+            const data = {
+                userName: userName.trim(),
+                mobileNo,
+                countryCode: callingCode,
+                createdAt: new Date(),
+                isVerified: true,
+                userImageData: imageData,
+                imagePath
+            }
+            
+            const userId = this.props.userData && this.props.userData.userId;
+
+            if (!userId) {
+                console.log("insdie if ")
+                this.props.actions.registerUser(data).then((res) => {
+                    
+                })
+            }
         }
     }
 
@@ -54,7 +80,7 @@ export default class ProfileInfo extends Component {
         };
 
         ImagePicker.launchImageLibrary(options, (response) => {
-            this.setState({ isImageSelected: true, imagePath: response.path, imageData: `data:image/png;base64,${response.data}` })
+            this.setState({ isImageSelected: true, imagePath: response.path, imageData: response.data })
         });
     }
 
@@ -79,7 +105,7 @@ export default class ProfileInfo extends Component {
                                 activeOpacity={0.6}
                             >
                                 <Image
-                                    source={{ uri: this.state.imageData }}
+                                    source={{ uri: `data:image/png;base64,${this.state.imageData}` }}
                                     style={styles.profileImage}
                                 />
                             </TouchableOpacity>
@@ -142,7 +168,8 @@ export default class ProfileInfo extends Component {
                             <Text>Gallery</Text>
                         </TouchableOpacity>
                         {
-                            <TouchableOpacity style={styles.flexCenter}>
+                            this.state.isImageSelected &&
+                            <TouchableOpacity style={styles.flexCenter} onPress={() => this.setState({ isImageSelected: false, imagePath: null, imageData: null, imageSelector: false })}>
                                 <View style={styles.deleteIcon}>
                                     <Ionicons name='md-trash' color='white' size={30} />
                                 </View>
@@ -156,6 +183,19 @@ export default class ProfileInfo extends Component {
         )
     }
 }
+
+function mapStateToProps(state) {
+    return {
+        userData: state.user.userData,
+    };
+}
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators(userActions, dispatch),
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProfileInfo);
 
 const styles = StyleSheet.create({
     inputContainer: {
@@ -175,7 +215,7 @@ const styles = StyleSheet.create({
     arrowForward: {
         height: 60,
         width: 60,
-        backgroundColor: '#54575e',
+        backgroundColor: '#3a5562',
         borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center',

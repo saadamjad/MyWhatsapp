@@ -167,7 +167,7 @@ export default class OtpVerify extends Component {
                                 flex: 1,
                             }}
                         >
-                            <TouchableOpacity onPress={() => this.validateNumber()} style={{ height: 60, width: 60, backgroundColor: '#54575e', borderRadius: 30, justifyContent: 'center', alignItems: 'center', }} >
+                            <TouchableOpacity onPress={() => this.validateNumber()} style={{ height: 60, width: 60, backgroundColor: '#3a5562', borderRadius: 30, justifyContent: 'center', alignItems: 'center', }} >
                                 <Ionicons color={'white'} size={26} name={'md-arrow-forward'} />
                             </TouchableOpacity>
                         </Animatable.View>

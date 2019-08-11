@@ -1,11 +1,11 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image } from "react-native";
 import { createAppContainer, StackNavigator, DrawerNavigator, TabNavigator, NavigationActions, StackActions, TabBarBottom, createStackNavigator } from "react-navigation";
 
 import DefualtScreen from './DefaultScreen';
 import Signup from './containers/signup'
 import OtpVerify from './containers/signup/otpVerify'
-import ProfileInfo from "./containers/profile/profileInfo";
+import SignupProfile from "./containers/profile/signupProfile";
+import Home from "./containers/home/home";
 
 const AppNavigator = createStackNavigator(
   {
@@ -19,7 +19,10 @@ const AppNavigator = createStackNavigator(
       screen: OtpVerify
     },
     ProfileInfo: {
-      screen: ProfileInfo
+      screen: SignupProfile
+    },
+    Home:{
+      screen: Home
     }
   },
   {
