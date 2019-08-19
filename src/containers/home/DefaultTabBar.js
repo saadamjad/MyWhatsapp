@@ -2,11 +2,10 @@ import React from 'react';
 import {
   StyleSheet,
   Text,
-  View,
   TouchableOpacity,
   Animated
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import colors from './../../appConfig/color';
 
 class DefaultTabBar extends React.Component {
   icons = [];
@@ -14,10 +13,40 @@ class DefaultTabBar extends React.Component {
   constructor(props) {
     super(props);
     this.icons = [];
+    this.state = {
+      tabHeight: new Animated.Value(50),
+      tabOpacity: new Animated.Value(1),
+    }
   }
 
   componentDidMount() {
     this._listener = this.props.scrollValue.addListener(this.setAnimationValue.bind(this));
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.showSearchbar) {
+      Animated.parallel([
+        Animated.timing(this.state.tabHeight, {
+          toValue: 0,
+          duration: 300
+        }),
+        Animated.timing(this.state.tabOpacity, {
+          toValue: 0,
+          duration: 300
+        }),
+      ]).start()
+    } else {
+      Animated.parallel([
+        Animated.timing(this.state.tabHeight, {
+          toValue: 50,
+          duration: 300
+        }),
+        Animated.timing(this.state.tabOpacity, {
+          toValue: 1,
+          duration: 300
+        }),
+      ]).start()
+    }
   }
 
   setAnimationValue({ value, }) {
@@ -40,8 +69,10 @@ class DefaultTabBar extends React.Component {
   }
 
   render() {
+    let height = this.props.showSearchbar ? 0 : 50;
+    let opacity = this.props.showSearchbar ? 0 : 1;
     return (
-      <Animated.View style={[styles.tabs, this.props.style,{translateY:this.props.translateY}]}>
+      <Animated.View style={[styles.tabs, { height, opacity }]}>
         {this.props.tabs.map((tab, i) => {
 
           const containerWidth = this.props.containerWidth;
@@ -91,18 +122,16 @@ const styles = StyleSheet.create({
   tab: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   tabs: {
-    height:50,
     flexDirection: 'row',
-    paddingTop: 5,
     borderWidth: 1,
     borderTopWidth: 0,
     borderLeftWidth: 0,
     borderRightWidth: 0,
     borderBottomColor: 'rgba(0,0,0,0.05)',
-    backgroundColor: '#3a5562'
+    backgroundColor: colors.themeColor
   },
 });
 

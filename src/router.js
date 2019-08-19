@@ -1,16 +1,17 @@
 import React from "react";
 import { createAppContainer, StackNavigator, DrawerNavigator, TabNavigator, NavigationActions, StackActions, TabBarBottom, createStackNavigator } from "react-navigation";
 
-import DefualtScreen from './DefaultScreen';
+import DefaultScreen from './DefaultScreen';
 import Signup from './containers/signup'
 import OtpVerify from './containers/signup/otpVerify'
 import SignupProfile from "./containers/profile/signupProfile";
 import Home from "./containers/home/home";
+import SettingsScreen from "./containers/settings";
 
 const AppNavigator = createStackNavigator(
   {
-    DefualtScreen: {
-      screen: DefualtScreen,
+    DefaultScreen: {
+      screen: DefaultScreen,
     },
     Signup: {
       screen: Signup
@@ -21,17 +22,22 @@ const AppNavigator = createStackNavigator(
     ProfileInfo: {
       screen: SignupProfile
     },
-    Home:{
+    Home: {
       screen: Home
+    },
+    Settings: {
+      screen: SettingsScreen,
     }
   },
   {
-    initialRouteName: "DefualtScreen",
+    initialRouteName: "DefaultScreen",
     headerMode: "none",
     cardStyle: {
       backgroundColor: "white"
     }
   });
+
+
 
 const App = createAppContainer(AppNavigator);
 

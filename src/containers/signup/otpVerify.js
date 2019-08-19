@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import colors from './../../appConfig/color'
 export default class OtpVerify extends Component {
 
     constructor() {
@@ -167,7 +167,7 @@ export default class OtpVerify extends Component {
                                 flex: 1,
                             }}
                         >
-                            <TouchableOpacity onPress={() => this.validateNumber()} style={{ height: 60, width: 60, backgroundColor: '#3a5562', borderRadius: 30, justifyContent: 'center', alignItems: 'center', }} >
+                            <TouchableOpacity onPress={() => this.validateNumber()} style={styles.forwardArrow} >
                                 <Ionicons color={'white'} size={26} name={'md-arrow-forward'} />
                             </TouchableOpacity>
                         </Animatable.View>
@@ -194,4 +194,12 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: '#000000'
     },
+    forwardArrow:{
+        height: 60,
+        width: 60,
+        backgroundColor: colors.themeColor,
+        borderRadius: 30,
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
 })

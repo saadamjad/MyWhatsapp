@@ -1,8 +1,11 @@
 import React, { Component } from 'react'
-import { View, Text, Animated, ImageBackground, Dimensions, Image, StyleSheet, TouchableOpacity, TextInput, Keyboard, Platform } from 'react-native';
+import { View, Text, Animated, ImageBackground, Dimensions, Image, StyleSheet, TouchableOpacity, TextInput, Keyboard, Platform, PermissionsAndroid } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import CountryPicker from './../../components/countryPicker';
+// import CountryPicker from './../../components/countryPicker';
+import CountryPicker from 'rn-country-picker-minimal'
+
+import colors from './../../appConfig/color'
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
 
@@ -24,6 +27,45 @@ export default class SignupScreen extends Component {
         this.loginHeight = new Animated.Value(150);
         this.forwardArrowOpacity = new Animated.Value(0);
         this.borderBottomWidth = new Animated.Value(0);
+    }
+
+    async componentWillMount() {
+        if (Platform.OS == 'android')
+            try {
+                await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+                    {
+                        'title': '####',
+                        'message': 'MyWhatsapp needs access to your storage so you can upload awesome pictures.'
+                    }
+                )
+
+                await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                    {
+                        'title': '####',
+                        'message': 'MyWhatsapp needs access to your Photo '
+                    }
+                )
+                await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+                    {
+                        'title': '####',
+                        'message': 'MyWhatsapp needs access to your contacts '
+                    }
+                )
+
+                await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.CAMERA,
+                    {
+                        'title': '####',
+                        'message': 'MyWhatsapp needs access to your camera '
+                    }
+                )
+
+            } catch (err) {
+                console.warn(err)
+            }
     }
 
     setCountryData(selectedCountryData) {
@@ -133,7 +175,7 @@ export default class SignupScreen extends Component {
 
                                 <TouchableOpacity
                                     activeOpacity={0.5}
-                                    onPress={() => {this.refs.textInputMobile.blur(),this.setState({ showCountryModal: true })}}
+                                    onPress={() => { this.refs.textInputMobile.blur(), this.setState({ showCountryModal: true }) }}
                                 >
                                     <Image
                                         source={{ uri: this.state.countryImage }}
@@ -213,7 +255,7 @@ const styles = StyleSheet.create({
     forwardButton: {
         height: 60,
         width: 60,
-        backgroundColor: '#3a5562',
+        backgroundColor: colors.themeColor,
         borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center'

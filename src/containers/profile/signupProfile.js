@@ -1,13 +1,18 @@
 import React, { Component } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, SafeAreaView, Image, Keyboard } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import Dialog, { SlideAnimation, DialogContent } from 'react-native-popup-dialog';
 import ImagePicker from 'react-native-image-picker';
+import Toast from 'react-native-root-toast';
+import { NavigationActions, StackActions } from 'react-navigation';
+import * as Animatable from 'react-native-animatable';
+
+import colors from './../../appConfig/color'
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as userActions from './../../actions/userActions';
-
 class ProfileInfo extends Component {
 
     constructor(props) {
@@ -21,11 +26,9 @@ class ProfileInfo extends Component {
             userName: '',
             imagePath: null,
             mobileNo: params.mobileNo,
+            isSigningUp: false,
             callingCode: params.callingCode
         }
-    }
-
-    componentDidMount() {
 
     }
 
@@ -34,12 +37,14 @@ class ProfileInfo extends Component {
     }
 
     signupUser() {
-
         let { userName, callingCode, mobileNo, imagePath, imageData } = this.state;
-
         if (!userName.trim()) {
             this.setState({ isUserNameValid: false });
         } else {
+
+            Keyboard.dismiss();
+
+            this.setState({ isSigningUp: true })
 
             const data = {
                 userName: userName.trim(),
@@ -47,16 +52,43 @@ class ProfileInfo extends Component {
                 countryCode: callingCode,
                 createdAt: new Date(),
                 isVerified: true,
-                userImageData: imageData,
-                imagePath
+                imagePath,
+                hasProfileImage: this.state.isImageSelected
             }
-            
+
             const userId = this.props.userData && this.props.userData.userId;
 
             if (!userId) {
-                console.log("insdie if ")
                 this.props.actions.registerUser(data).then((res) => {
-                    
+                    console.log("regsiterd")
+                    Toast.show('Regsitered successfully. Enjoy MyWhatsapp!', {
+                        duration: 3000,
+                        position: Toast.positions.BOTTOM,
+                        shadow: true,
+                        animation: true,
+                        hideOnPress: true,
+                        delay: 0
+                    });
+
+                    setTimeout(() => {
+                        const routeName = 'Home';
+                        const resetAction = StackActions.reset({
+                            index: 0,
+                            actions: [NavigationActions.navigate({ routeName })],
+                        });
+                        this.props.navigation.dispatch(resetAction);
+                    }, 300)
+
+                }).catch((err) => {
+                    console.log("err => ", err);
+                    Toast.show('Some error occurred! Please try again', {
+                        duration: 3000,
+                        position: Toast.positions.BOTTOM,
+                        shadow: true,
+                        animation: true,
+                        hideOnPress: true,
+                        delay: 0
+                    });
                 })
             }
         }
@@ -66,11 +98,7 @@ class ProfileInfo extends Component {
 
         const options = {
             title: 'Select Avatar',
-            customButtons: [{ name: 'fb', title: 'Choose Photo from Facebook' }],
-            storageOptions: {
-                skipBackup: true,
-                path: 'images',
-            },
+            customButtons: [{ name: 'fb', title: 'Choose Photo from Gallery' }],
             permissionDenied: {
                 title: "Give permission",
                 text: "Text",
@@ -85,6 +113,7 @@ class ProfileInfo extends Component {
     }
 
     render() {
+
         return (
             <SafeAreaView style={styles.container}>
 
@@ -138,9 +167,25 @@ class ProfileInfo extends Component {
                         marginTop: 30
                     }}
                 >
-                    <TouchableOpacity onPress={() => this.signupUser()} style={styles.arrowForward} >
-                        <Ionicons color={'white'} size={26} name={'md-arrow-forward'} />
-                    </TouchableOpacity>
+                    {
+                        this.state.isSigningUp ?
+                            <>
+                                <Animatable.View
+                                    animation="rotate"
+                                    easing="linear"
+                                    iterationCount="infinite"
+                                    style={styles.arrowForward}
+                                >
+                                    <EvilIcons name="spinner-3" color={'white'} size={26} />
+                                </Animatable.View>
+                            </>
+                            :
+                            <TouchableOpacity onPress={() => this.signupUser()} style={styles.arrowForward} >
+                                <Ionicons color={'white'} size={26} name={'md-arrow-forward'} />
+                            </TouchableOpacity>
+                    }
+
+
                 </View>
 
                 <Dialog
@@ -215,10 +260,11 @@ const styles = StyleSheet.create({
     arrowForward: {
         height: 60,
         width: 60,
-        backgroundColor: '#3a5562',
+        backgroundColor: colors.themeColor,
         borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center',
+        zIndex: 100
     },
     userNameInput: {
         borderBottomWidth: 1,

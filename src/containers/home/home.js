@@ -1,126 +1,68 @@
-import React, { Component } from 'react'
-import { View, Text, StyleSheet, ScrollView, Animated } from 'react-native';
+import React, { PureComponent } from 'react'
+import { View, StyleSheet } from 'react-native';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
+
 import DefaultTabBar from './DefaultTabBar';
-import Icon from 'react-native-vector-icons/Feather'
-import { TouchableOpacity } from 'react-native-gesture-handler';
 
-const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
-const HEADER_HEIGHT = 50;
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as userActions from './../../actions/userActions';
 
-export default class Home extends Component {
+import CallsTab from '../../components/homeTabs/callsTab';
+import StatusTab from '../../components/homeTabs/statusTab';
+import ChatTab from '../../components/homeTabs/chatTab';
+import Header from '../../components/header';
 
-    constructor() {
-        super();
+class Home extends PureComponent {
+
+    constructor(props) {
+        super(props);
         this.state = {
-            scrollAnim: new Animated.Value(0),
-            offsetAnim: new Animated.Value(0),
+            showSearchbar: false
         }
     }
-
-    componentDidMount() {
-        this.state.scrollAnim.addListener(this._handleScroll);
-    }
-
-    componentWillUnmount() {
-        this.state.scrollAnim.removeListener(this._handleScroll);
-    }
-
-    _handleScroll = ({ value }) => {
-        this._previousScrollvalue = this._currentScrollValue;
-        this._currentScrollValue = value;
-    };
-
-    _handleScrollEndDrag = () => {
-        this._scrollEndTimer = setTimeout(this._handleMomentumScrollEnd, 250);
-    };
-
-    _handleMomentumScrollBegin = () => {
-        clearTimeout(this._scrollEndTimer);
-    };
-
-    _handleMomentumScrollEnd = () => {
-        const previous = this._previousScrollvalue;
-        const current = this._currentScrollValue;
-
-        if (previous > current || current < HEADER_HEIGHT) {
-            // User scrolled down or scroll amount was too less, lets snap back our header
-            Animated.spring(this.state.offsetAnim, {
-                toValue: -current,
-                tension: 300,
-                friction: 35,
-                useNativeDriver: true,
-            }).start();
-        } else {
-            Animated.timing(this.state.offsetAnim, {
-                toValue: 0,
-                duration: 500,
-                useNativeDriver: true,
-            }).start();
-        }
-    };
 
     render() {
 
-        const { scrollAnim, offsetAnim } = this.state;
-
-        const translateY = Animated.add(scrollAnim, offsetAnim).interpolate({
-            inputRange: [0, HEADER_HEIGHT],
-            outputRange: [0, -HEADER_HEIGHT],
-            extrapolate: 'clamp'
-        });
-
         return (
-            <View style={{ flex: 1 }}>
 
-                <Animated.View style={{ paddingTop: 15, paddingHorizontal: 20, backgroundColor: '#3a5562', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', height:HEADER_HEIGHT,transform: [{ translateY }] }}>
-                    <Text style={{ color: 'white', fontSize: 22, fontWeight: 'bold' }}>WhatsApp</Text>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <TouchableOpacity style={{ marginRight: 20 }}>
-                            <Icon name={'search'} color={'white'} size={22} />
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                            <Icon name={'more-vertical'} color={'white'} size={22} />
-                        </TouchableOpacity>
-                    </View>
-                </Animated.View>
-
+            <View style={{ flex: 1 }} >
+                <Header searchBarStatus={(status)=> this.setState({showSearchbar:status})} {...this.props}/>
                 <ScrollableTabView
                     initialPage={0}
-                    renderTabBar={() => <DefaultTabBar translateY={translateY} />}
+                    renderTabBar={() => <DefaultTabBar showSearchbar={this.state.showSearchbar} />}
                 >
-                    <ScrollView
-                        tabLabel="CHATS" 
-                        style={[styles.tabView]}
-                    >
-                        <View style={[styles.card]}>
-                            <Text>CHATS</Text>
-                        </View>
-                    </ScrollView>
+                    <View tabLabel="CHATS" style={[styles.tabView]} >
+                        <ChatTab />
+                    </View>
 
-                    <ScrollView
-                        tabLabel="STATUS" 
-                        style={[styles.tabView]}
-                    >
-                        <View style={[styles.card]}>
-                            <Text>STATUS</Text>
-                        </View>
-                    </ScrollView>
+                    <View tabLabel="STATUS" style={[styles.tabView]} >
+                        <StatusTab />
+                    </View>
 
-                    <ScrollView
-                        tabLabel="CALLS" 
-                        style={[styles.tabView]}
-                    >
-                        <View style={[styles.card]}>
-                            <Text>CALLS</Text>
-                        </View>
-                    </ScrollView>
+                    <View tabLabel="CALLS" style={[styles.tabView]} >
+                        <CallsTab CallsData={this.state.Chats} />
+                    </View>
 
                 </ScrollableTabView>
             </View>
         )
     }
 }
+
+function mapStateToProps(state) {
+    console.log("state.user => ", state.user.userData)
+    return {
+        userData: state.user.userData,
+    };
+}
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators(userActions, dispatch),
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
 
 const styles = StyleSheet.create({
     tabView: {
@@ -162,8 +104,8 @@ const styles = StyleSheet.create({
 //             <View>
 //                 {Platform.OS === "ios" &&
 //                     <View style={{ backgroundColor: COLOR, height: 20, width: "100%", position: "absolute", zIndex: 2 }} />}
-                
-                
+
+
 //                     <Tabs renderTabBar={(props) => 
 //                     <Animated.View
 //                         style={[{
