@@ -1,29 +1,34 @@
 import React, { Component } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, SafeAreaView, Image, Animated } from 'react-native';
-import PageHeader from './../../components/PageHeader'
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Keyboard, Image, Animated, TextInput, KeyboardAvoidingView } from 'react-native';
+import PageHeader from '../../components/PageHeader'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import * as Animatable from 'react-native-animatable';
-
-import colors from './../../appConfig/color';
+import colors from '../../appConfig/color';
+import Dialog, { SlideAnimation, DialogContent } from 'react-native-popup-dialog';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as userActions from './../../actions/userActions';
+import * as userActions from '../../actions/userActions';
 
 const DEVICE_WIDTH = Dimensions.get('window').width
-const DEVICE_HEIGHT = Dimensions.get('window').height
 
 class SettingsScreen extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            editProfile: false
+            editProfile: false,
+            imageSelector: false,
+            editDisplayName: false,
+            displayName: 'Ravi Sojitra',
+            aboutMe: `This is so cool!! isn't it?`,
         }
         this.animatedValue = new Animated.Value(0);
         this.animatedImageWidth = new Animated.Value(0);
         this.animatedOpacity = new Animated.Value(0);
+        this.editNameInputRef = null;
     }
 
     onBackPress() {
@@ -86,6 +91,14 @@ class SettingsScreen extends Component {
         })
     }
 
+    editDisplayName() {
+        this.setState({ editDisplayName: true }, () => {
+            setTimeout(() => {
+                this.editNameInputRef.focus()
+            }, 200);
+        })
+    }
+
     render() {
         //top:70,left:75
         const position = {
@@ -117,13 +130,21 @@ class SettingsScreen extends Component {
 
         let isEditProfile = this.state.editProfile;
         return (
-            <SafeAreaView style={styles.container}>
+            <KeyboardAvoidingView style={styles.container}>
 
                 <PageHeader title={isEditProfile ? 'Profile' : 'Settings'} onBackPress={() => isEditProfile ? this.backToSettings() : this.onBackPress()} />
 
                 <Animated.View style={[position, styles.row]}>
                     <TouchableOpacity onPress={() => this.animateMyProfile()}>
                         <Animated.Image style={{ height: imageHeight, width: imageHeight, borderRadius: 70 }} source={require('./../../assets/users/tony.jpg')} />
+
+                        {
+                            this.state.editProfile &&
+                            <TouchableOpacity onPress={() => this.setState({ imageSelector: true })} style={{ height: 46, width: 46, backgroundColor: colors.themeColor, borderRadius: 23, justifyContent: 'center', alignItems: 'center', position: 'absolute', bottom: 0, right: 0 }}>
+                                <MaterialCommunityIcons style={{}} size={20} name={'camera'} color={'white'} />
+                            </TouchableOpacity>
+                        }
+
                     </TouchableOpacity>
                     <Animated.View style={[styles.nameContainer, { opacity }]}>
                         <Text style={styles.userName}> Tony Stark </Text>
@@ -133,30 +154,35 @@ class SettingsScreen extends Component {
 
                 {
                     this.state.editProfile &&
-                    <Animatable.View animation={'fadeIn'} delay={0} iterationCount={1} style={{ marginTop: 50,paddingHorizontal:10 }}>
-                        <View style={[styles.settingRow,{justifyContent:'space-between',borderBottomWidth:1,borderColor:'#ddd',paddingHorizontal:0,paddingVertical:10}]}>
+                    <Animatable.View animation={'fadeIn'} delay={0} iterationCount={1} style={{ marginTop: 50, paddingHorizontal: 10 }}>
+
+                        <TouchableOpacity onPress={() => this.editDisplayName()} style={[styles.settingRow, { justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#ddd', paddingHorizontal: 0, paddingVertical: 10 }]}>
                             <MaterialIcons style={styles.settingIcon} size={23} name={'chat'} color={colors.lightThemeColor} />
-                            <View style={{justifyContent:'space-between',padding:10,flex:1}}>
-                                <Text style={{color:'#888',fontSize:14}}>Display Name </Text>
-                                <Text style={{color:'black',fontSize:15}}>Ravi Sojitra</Text>
+
+                            <View style={{ justifyContent: 'space-between', padding: 10, flex: 1 }}>
+                                <Text style={{ color: '#888', fontSize: 14 }}>Display Name </Text>
+                                <Text style={{ color: 'black', fontSize: 15 }}>{this.state.displayName}</Text>
                             </View>
                             <MaterialCommunityIcons style={styles.settingIcon} size={23} name={'pencil'} color={colors.lightgray} />
-                        </View>
 
-                        <View style={[styles.settingRow,{justifyContent:'space-between',borderBottomWidth:1,borderColor:'#ddd',paddingHorizontal:0,paddingVertical:10}]}>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={[styles.settingRow, { justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#ddd', paddingHorizontal: 0, paddingVertical: 10 }]}>
                             <MaterialIcons style={styles.settingIcon} size={23} name={'info-outline'} color={colors.lightThemeColor} />
-                            <View style={{justifyContent:'space-between',padding:10,flex:1}}>
-                                <Text style={{color:'#888',fontSize:14}}>About </Text>
-                                <Text style={{color:'black',fontSize:15}}>This is so cool!!! isn't it?</Text>
+
+                            <View style={{ justifyContent: 'space-between', padding: 10, flex: 1 }}>
+                                <Text style={{ color: '#888', fontSize: 14 }}>About </Text>
+                                <Text style={{ color: 'black', fontSize: 15 }}>This is so cool!!! isn't it?</Text>
                             </View>
                             <MaterialCommunityIcons style={styles.settingIcon} size={23} name={'pencil'} color={colors.lightgray} />
-                        </View>
 
-                        <View style={[styles.settingRow,{justifyContent:'space-between',borderBottomWidth:1,borderColor:'#ddd',paddingHorizontal:0,paddingVertical:10}]}>
+                        </TouchableOpacity>
+
+                        <View style={[styles.settingRow, { justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#ddd', paddingHorizontal: 0, paddingVertical: 10 }]}>
                             <MaterialIcons style={styles.settingIcon} size={23} name={'phone'} color={colors.lightThemeColor} />
-                            <View style={{justifyContent:'space-between',padding:10,flex:1}}>
-                                <Text style={{color:'#888',fontSize:14}}>Phone </Text>
-                                <Text style={{color:'black',fontSize:15}}>+91 95745 89874</Text>
+                            <View style={{ justifyContent: 'space-between', padding: 10, flex: 1 }}>
+                                <Text style={{ color: '#888', fontSize: 14 }}>Phone </Text>
+                                <Text style={{ color: 'black', fontSize: 15 }}>+91 95745 89874</Text>
                             </View>
                         </View>
                     </Animatable.View>
@@ -206,9 +232,78 @@ class SettingsScreen extends Component {
                     </View>
                 </Animated.View>
 
+                <Dialog
+                    rounded={false}
+                    visible={this.state.imageSelector}
+                    onTouchOutside={() => {
+                        this.setState({ imageSelector: false });
+                    }}
+                    dialogAnimation={new SlideAnimation({
+                        slideFrom: 'bottom',
+                    })}
+                    onHardwareBackPress={() => {
+                        this.setState({ imageSelector: false });
+                        return true;
+                    }}
+                    dialogStyle={{ width: '100%', height: 120, position: 'absolute', bottom: 0 }}
+                >
+                    <DialogContent style={styles.iconContainer}>
+                        <TouchableOpacity style={styles.flexCenter}>
+                            <Image source={require('./../../assets/camera.png')} style={styles.modalIcon} />
+                            <Text>Camera</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.flexCenter} onPress={() => this.setState({ imageSelector: false }, () => this.launchLibrary())}>
+                            <Image source={require('./../../assets/gallery.png')} style={styles.modalIcon} />
+                            <Text>Gallery</Text>
+                        </TouchableOpacity>
+                        {
+                            this.state.isImageSelected &&
+                            <TouchableOpacity style={styles.flexCenter} onPress={() => this.setState({ isImageSelected: false, imagePath: null, imageData: null, imageSelector: false })}>
+                                <View style={styles.deleteIcon}>
+                                    <Ionicons name='md-trash' color='white' size={30} />
+                                </View>
+                                <Text>Remove Photo</Text>
+                            </TouchableOpacity>
+                        }
+                    </DialogContent>
+                </Dialog>
 
+                <Dialog
+                    rounded={false}
+                    visible={this.state.editDisplayName}
+                    onTouchOutside={() => {
+                        this.setState({ editDisplayName: false });
+                    }}
+                    dialogAnimation={new SlideAnimation({
+                        slideFrom: 'bottom',
+                    })}
+                    onHardwareBackPress={() => {
+                        this.setState({ editDisplayName: false });
+                        return true;
+                    }}
+                    dialogStyle={{ width: '100%', height: 150, position: 'absolute', bottom: 0, borderTopLeftRadius: 15, borderTopRightRadius: 15 }}
+                >
+                    <DialogContent style={{height:150,paddingTop:25,width:'100%'}}>
+                        <Text style={{ fontWeight: 'bold', color: 'black',fontSize:18,marginBottom:10 }}>Enter your name</Text>
+                        <TextInput
+                            value={this.state.displayName}
+                            onChangeText={(text) => this.setState({ displayName: text })}
+                            numberOfLines={1}
+                            style={{ padding: 0, borderBottomColor: colors.themeColor, borderBottomWidth: 2,marginBottom:30,fontSize:16 }}
+                            ref={(e) => { this.editNameInputRef = e; }}
+                        />
+                        <View style={{ justifyContent: 'flex-end',flexDirection:'row',alignItems:'center',flex:1 }}>
+                            <TouchableOpacity style={{marginRight:30}} onPress={()=> {Keyboard.dismiss(),this.setState({ editDisplayName: false })}}>
+                                <Text style={{ color: colors.themeColor,fontWeight:'bold',fontSize:15 }}>CANCEL</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={()=> {Keyboard.dismiss(),this.setState({ editDisplayName: false })}}>
+                                <Text style={{ color: colors.themeColor,fontWeight:'bold',fontSize:15 }}>SAVE</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </DialogContent>
+                </Dialog>
 
-            </SafeAreaView>
+            </KeyboardAvoidingView>
         )
     }
 }
@@ -273,5 +368,36 @@ const styles = StyleSheet.create({
         paddingVertical: 20,
         paddingHorizontal: 15,
         justifyContent: 'flex-start',
-    }
+    },
+    flexCenter: {
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    popupDialogStyle: {
+        backgroundColor: 'white',
+        height: 150,
+        flex: 1
+    },
+    modalIcon: {
+        height: 60,
+        width: 60,
+        borderRadius: 30,
+        margin: 10
+    },
+    deleteIcon: {
+        height: 60,
+        width: 60,
+        borderRadius: 30,
+        margin: 10,
+        backgroundColor: '#ff5c33',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    iconContainer: {
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        height: 120,
+        flexDirection: 'row',
+        paddingTop: 25
+    },
 })

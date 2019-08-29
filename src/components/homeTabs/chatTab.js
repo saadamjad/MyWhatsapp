@@ -8,6 +8,7 @@ import {
     StyleSheet,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from './../../appConfig/color';
 
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
@@ -18,7 +19,11 @@ const chatData = [
         "message": "Get lost squidward.",
         "icon": "done",
         "isViewed": "false",
-        "image": require("./../../assets/users/tony.jpg")
+        "image": require("./../../assets/users/tony.jpg"),
+        showReadBy: false,
+        readBy: true,
+        lastMsgType: 'image',
+        unReedCount:2
     },
     {
         "time": "11:56 AM",
@@ -26,15 +31,21 @@ const chatData = [
         "icon": "done",
         "isViewed": true,
         "name": "Captain Marvel",
-        "image": require("./../../assets/users/captain_marvel.jpg")
+        "image": require("./../../assets/users/captain_marvel.jpg"),
+        showReadBy: true,
+        readBy: true,
+        lastMsgType: 'text',
     },
     {
         "time": "1:34 AM",
         "message": "I can do this all day.",
         "icon": "done-all",
-        "iconColor":"msgReadColor",
+        "iconColor": "msgReadColor",
         "isViewed": "false",
         "name": "Captain America",
+        showReadBy: false,
+        lastMsgType: 'text',
+        readBy: false,
         "image": require("./../../assets/users/captain.jpg")
     },
     {
@@ -43,6 +54,9 @@ const chatData = [
         "icon": "done-all",
         "isViewed": true,
         "name": "Hulk",
+        showReadBy: true,
+        lastMsgType: 'image',
+        readBy: true,
         "image": require("./../../assets/users/hulk.jpg")
     },
     {
@@ -51,6 +65,9 @@ const chatData = [
         "icon": "done",
         "isViewed": "false",
         "name": "Natasha Romanoff",
+        showReadBy: false,
+        lastMsgType: 'text',
+        readBy: false,
         "image": require("./../../assets/users/natasha.jpg")
     },
     {
@@ -59,6 +76,9 @@ const chatData = [
         "icon": "done-all",
         "isViewed": true,
         "name": "Thor",
+        showReadBy: true,
+        lastMsgType: 'text',
+        readBy: false,
         "image": require("./../../assets/users/thor.jpg")
     },
     {
@@ -67,6 +87,9 @@ const chatData = [
         "icon": "done-all",
         "isViewed": true,
         "name": "Black panther",
+        showReadBy: false,
+        lastMsgType: 'image',
+        readBy: false,
         "image": require("./../../assets/users/panther.jpg")
     },
     {
@@ -75,6 +98,9 @@ const chatData = [
         "icon": "done-all",
         "isViewed": "false",
         "name": "Thanos",
+        showReadBy: true,
+        lastMsgType: 'text',
+        readBy: true,
         "image": require("./../../assets/users/thanos.jpg")
     },
     {
@@ -83,9 +109,12 @@ const chatData = [
         "icon": "done",
         "isViewed": "false",
         "name": "Nick Fury",
+        showReadBy: false,
+        lastMsgType: 'image',
+        readBy: false,
         "image": require("./../../assets/users/nick.jpg")
     },
-    
+
 ];
 
 class ChatTab extends React.Component {
@@ -101,15 +130,46 @@ class ChatTab extends React.Component {
                     <View>
                         <View style={styles.nameContainer}>
                             <Text style={styles.nameTxt}>{props.name}</Text>
-                            <Text style={styles.time}>{props.time}</Text>
+                            <Text style={[styles.time,{color:props.unReedCount > 0 ? colors.themeColor : '#777'}]}>{props.time}</Text>
                         </View>
                         <View style={styles.msgContainer}>
-                            <MaterialIcons
-                                name={props.icon} size={15} 
-                                color={colors[props.iconColor] || "#b3b3b3"}
-                                style={{ marginLeft: 15, marginRight: 5 }}
-                            />
-                            <Text style={styles.msgTxt}>{props.message}</Text>
+                            {
+                                props.lastMsgType == 'text' ?
+                                    <Text style={styles.msgTxt}>
+                                        {
+                                            props.showReadBy ?
+                                                props.readBy ?
+                                                    <MaterialCommunityIcons name={'check-all'} size={15} color={"#34b7f1"} style={{ marginRight: 5 }} />
+                                                    :
+                                                    <MaterialCommunityIcons name={'check'} size={15} color={colors.lightgray} style={{ marginRight: 5 }} />
+                                                :
+                                                null
+                                        }
+                                        {props.message}
+                                    </Text>
+                                    :
+                                    <Text numberOfLines={1} ellipsizeMode="tail" style={styles.msgTxt}>
+                                        {
+                                            props.showReadBy ?
+                                                props.readBy ?
+                                                    <MaterialCommunityIcons style={{ marginRight: 5 }} name={'check-all'} color={'#2d89e6'} size={15} />
+                                                    :
+                                                    <MaterialCommunityIcons style={{ marginRight: 5 }} color={'#aaa'} name={'check'} size={15} />
+                                                :
+                                                null
+                                        }
+                                        <MaterialCommunityIcons name={'camera'} size={15} />
+                                        {' Photo'}
+                                    </Text>
+                            }
+                            {
+                                props.unReedCount > 0 ?
+                                    <View style={{height:20,width:20,justifyContent:'center',alignItems:'center',backgroundColor:colors.themeColor,borderRadius:10}}>
+                                        <Text style={{ textAlign: 'center',lineHeight:20, color: 'white', fontSize: 12 }}>{props.unReedCount}</Text>
+                                    </View>
+                                    :
+                                    null
+                            }
                         </View>
                     </View>
                 </View>
@@ -166,10 +226,10 @@ const styles = StyleSheet.create({
     },
     time: {
         fontWeight: '200',
-        color: '#777',
         fontSize: 13,
     },
     msgContainer: {
+        justifyContent: 'space-between',
         flexDirection: 'row',
         alignItems: 'center',
     },
@@ -177,6 +237,7 @@ const styles = StyleSheet.create({
         fontWeight: '400',
         color: '#666',
         fontSize: 12,
+        marginLeft: 15,
     },
     textStatusButton: {
         position: 'absolute',

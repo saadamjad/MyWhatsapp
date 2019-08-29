@@ -1,4 +1,5 @@
 import React from 'react';
+import {StatusBar} from 'react-native'
 import Router from './router';
 import _ from 'lodash';
 import { createStore, applyMiddleware } from 'redux';
@@ -9,7 +10,7 @@ import { persistStore, persistReducer } from 'redux-persist';
 // import FilesystemStorage from 'redux-persist-filesystem-storage';
 import storage from 'redux-persist/lib/storage';
 import { PersistGate } from 'redux-persist/lib/integration/react';
-
+import colors from './appConfig/color'
 import firebase from 'react-native-firebase'
 
 const persistConfig = {
@@ -46,6 +47,7 @@ export default class App extends React.Component {
     return (
       <Provider store={store}  >
         <PersistGate loading={null} persistor={persistor}>
+          <StatusBar backgroundColor={colors.themeColor} barStyle="light-content" />
           <Router />
         </PersistGate>
       </Provider >

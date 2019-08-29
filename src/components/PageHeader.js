@@ -13,7 +13,6 @@ export default class PageHeader extends Component {
     render() {
         return (
             <SafeAreaView>
-                <StatusBar backgroundColor={colors.lightThemeColor} barStyle="light-content"/>
                 <View style={styles.header}>
                     <TouchableOpacity onPress={() => this.props.onBackPress()}>
                         <Ionicons name={'md-arrow-back'} color='white' size={30} />

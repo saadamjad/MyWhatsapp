@@ -6,7 +6,7 @@ import Signup from './containers/signup'
 import OtpVerify from './containers/signup/otpVerify'
 import SignupProfile from "./containers/profile/signupProfile";
 import Home from "./containers/home/home";
-import SettingsScreen from "./containers/settings";
+import SettingsScreen from "./containers/settings/settings";
 
 const AppNavigator = createStackNavigator(
   {
