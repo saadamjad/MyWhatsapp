@@ -124,7 +124,7 @@ class ChatTab extends React.Component {
 
     renderRow(props) {
         return (
-            <TouchableOpacity activeOpacity={0.5} >
+            <TouchableOpacity activeOpacity={0.5} onPress={()=> this.props.navigation.navigate('UserChat')}>
                 <View style={styles.row}>
                     <Image source={props.image} style={styles.pic} />
                     <View>

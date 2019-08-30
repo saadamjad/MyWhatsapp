@@ -33,7 +33,7 @@ class Home extends PureComponent {
                     renderTabBar={() => <DefaultTabBar showSearchbar={this.state.showSearchbar} />}
                 >
                     <View tabLabel="CHATS" style={[styles.tabView]} >
-                        <ChatTab />
+                        <ChatTab {...this.props}/>
                     </View>
 
                     <View tabLabel="STATUS" style={[styles.tabView]} >
