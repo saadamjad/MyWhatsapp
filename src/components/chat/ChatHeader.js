@@ -13,31 +13,29 @@ export default class ChatHeader extends Component {
 
     render() {
         return (
-            <SafeAreaView style={{ flex: 1 }}>
-                <View style={styles.header}>
-                    <View style={{ flexDirection: 'row' }}>
-                        <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center',flexDirection:'row' }} onPress={() => this.props.navigation.goBack()}>
-                            <Ionicons name={'md-arrow-back'} color='white' size={30} />
-                            <Image source={require('./../../assets/users/natasha.jpg')} style={styles.pic} />
-                        </TouchableOpacity>
-                        <View>
-                            <Text style={{ fontSize: 18, color: 'white', fontWeight: '400' }}>Natasha</Text>
-                            <Text style={{ fontSize: 12, color: 'white' }}>Online</Text>
-                        </View>
+            <SafeAreaView style={styles.header}>
+                <View style={{ flexDirection: 'row' }}>
+                    <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }} onPress={() => this.props.navigation.goBack()}>
+                        <Ionicons name={'md-arrow-back'} color='white' size={30} />
+                        <Image source={require('./../../assets/users/natasha.jpg')} style={styles.pic} />
+                    </TouchableOpacity>
+                    <View>
+                        <Text style={{ fontSize: 18, color: 'white', fontWeight: '400' }}>Natasha</Text>
+                        <Text style={{ fontSize: 12, color: 'white' }}>Online</Text>
                     </View>
-                    <View style={{ flexDirection: 'row' }}>
-                        <Icon
-                            name="videocam" size={25} color="white"
-                            style={{ marginRight: 15 }}
-                        />
-                        <Icon
-                            name="call" size={25} color="white"
-                            style={{ marginRight: 15 }}
-                        />
-                        <Icon
-                            name="more-vert" size={25} color="white"
-                        />
-                    </View>
+                </View>
+                <View style={{ flexDirection: 'row' }}>
+                    <Icon
+                        name="videocam" size={25} color="white"
+                        style={{ marginRight: 15 }}
+                    />
+                    <Icon
+                        name="call" size={25} color="white"
+                        style={{ marginRight: 15 }}
+                    />
+                    <Icon
+                        name="more-vert" size={25} color="white"
+                    />
                 </View>
             </SafeAreaView>
         )

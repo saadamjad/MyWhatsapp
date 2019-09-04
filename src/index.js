@@ -27,16 +27,16 @@ const createStoreWithMiddleware = applyMiddleware(thunk)(createStore);
 const store = createStoreWithMiddleware(pReducer);
 const persistor = persistStore(store);
 
-const config = {
-  apiKey: "AIzaSyDo9k3Cio4Bwt2oA1-GPyoahqtMGfg9_Uw",
-  authDomain: "mywhatsapp-202fa.firebaseapp.com",
-  databaseURL: "https://mywhatsapp-202fa.firebaseio.com",
-  projectId: "mywhatsapp-202fa",
-  storageBucket: "mywhatsapp-202fa.appspot.com",
-  messagingSenderId: "716284620805",
-  appId: "1:716284620805:web:54a16ed50bb4465c"
-};
-firebase.initializeApp(config);
+// const config = {
+//   apiKey: "AIzaSyDo9k3Cio4Bwt2oA1-GPyoahqtMGfg9_Uw",
+//   authDomain: "mywhatsapp-202fa.firebaseapp.com",
+//   databaseURL: "https://mywhatsapp-202fa.firebaseio.com",
+//   projectId: "mywhatsapp-202fa",
+//   storageBucket: "mywhatsapp-202fa.appspot.com",
+//   messagingSenderId: "716284620805",
+//   appId: "1:716284620805:web:54a16ed50bb4465c"
+// };
+// firebase.initializeApp(config);
 
 export default class App extends React.Component {
   constructor(props) {

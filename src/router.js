@@ -87,7 +87,7 @@ const AppNavigator = createStackNavigator(
     }
   },
   {
-    initialRouteName: "DefaultScreen",
+    initialRouteName: "Home",
     headerMode: "none",
     cardStyle: {
       backgroundColor: "white"

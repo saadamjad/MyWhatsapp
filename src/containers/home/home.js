@@ -22,6 +22,10 @@ class Home extends PureComponent {
         }
     }
 
+    componentDidMount(){
+        // this.props.actions.contact();
+    }
+
     render() {
 
         return (

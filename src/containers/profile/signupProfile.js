@@ -45,15 +45,17 @@ class ProfileInfo extends Component {
             Keyboard.dismiss();
 
             this.setState({ isSigningUp: true })
+            let cleanMobileNumber = mobileNo.replace(/\D/g,'');
 
             const data = {
                 userName: userName.trim(),
-                mobileNo,
+                mobileNo:cleanMobileNumber,
+                countryMobileNo:`${callingCode}${cleanMobileNumber}`,
                 countryCode: callingCode,
                 createdAt: new Date(),
                 isVerified: true,
                 imagePath,
-                hasProfileImage: this.state.isImageSelected
+                hasProfileImage: this.state.isImageSelected,
             }
 
             const userId = this.props.userData && this.props.userData.userId;

@@ -110,7 +110,6 @@ class DefaultScreen extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log("nextProps => ", nextProps)
     this.redirectToApp(nextProps)
   }
 
