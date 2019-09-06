@@ -23,7 +23,7 @@ class Home extends PureComponent {
     }
 
     componentDidMount(){
-        // this.props.actions.contact();
+        this.props.actions.contact();
     }
 
     render() {
@@ -55,7 +55,6 @@ class Home extends PureComponent {
 }
 
 function mapStateToProps(state) {
-    console.log("state.user => ", state.user.userData)
     return {
         userData: state.user.userData,
     };

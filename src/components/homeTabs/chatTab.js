@@ -177,6 +177,10 @@ class ChatTab extends React.Component {
         )
     }
 
+    openContacts(){
+        this.props.navigation.navigate('ContactList');
+    }
+
     render() {
         return (
             <View style={{ flex: 1 }} >
@@ -188,7 +192,7 @@ class ChatTab extends React.Component {
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps={'handled'}
                 />
-                <TouchableOpacity style={styles.textStatusButton} activeOpacity={0.5}>
+                <TouchableOpacity style={styles.textStatusButton} onPress={()=> this.openContacts()} activeOpacity={0.5}>
                     <MaterialIcons color={'white'} name={'chat'} size={22} />
                 </TouchableOpacity>
             </View>
@@ -222,7 +226,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#222',
         fontSize: 15,
-
     },
     time: {
         fontWeight: '200',

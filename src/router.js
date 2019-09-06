@@ -12,6 +12,7 @@ import SignupProfile from "./containers/profile/signupProfile";
 import Home from "./containers/home/home";
 import SettingsScreen from "./containers/settings/settings";
 import UserChat from './containers/chat/UserChat';
+import ContactList from './containers/contacts/contactList';
 
 const transitionConfig = () => {
   return {
@@ -84,6 +85,9 @@ const AppNavigator = createStackNavigator(
     },
     UserChat: {
       screen: UserChat
+    },
+    ContactList:{
+      screen:ContactList
     }
   },
   {

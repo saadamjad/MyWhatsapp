@@ -12,7 +12,7 @@ import colors from './../appConfig/color';
 const getBackButtonListener = callback =>
     BackHandler.addEventListener('hardwareBackPress', callback);
 
-export default class Header extends PureComponent {
+export default class contactsHeader extends PureComponent {
     _menu = null;
 
     constructor(props) {
@@ -78,7 +78,6 @@ export default class Header extends PureComponent {
             // default scale set up back to "hidden" value
             searchScaleValue.setValue(0.01);
             this.setState({ order: 'defaultFirst', showSearchbar: false, searchValue: '' });
-            this.props.searchBarStatus(false);
             this.onSearchClosed();
         });
 
@@ -94,11 +93,8 @@ export default class Header extends PureComponent {
 
     onLayout = (event) => {
         const { width, height } = event.nativeEvent.layout;
-        console.log("width => ", width)
-        console.log("height => ", height)
         // pythagorean
         const radius = Math.sqrt(Math.pow(height, 2) + Math.pow(width, 2));
-        console.log("radius => ", radius)
         let diameter = radius * 2;
         // because there is issue in react native that we can't set scale value to 0, we need to use
         // 0.01 and it means we still see the point even if the scale set to 0.01
@@ -200,7 +196,6 @@ export default class Header extends PureComponent {
             this.setState({ order: 'searchFirst', showSearchbar: true });
             // on android it's typical that back button closes search input on toolbar
             this.backButtonListener = getBackButtonListener(this.onSearchCloseRequested);
-            this.props.searchBarStatus(true);
             setTimeout(() => {
                 this.refs.searchInput.focus();
             }, 200);
@@ -230,7 +225,15 @@ export default class Header extends PureComponent {
                         :
                         <>
                             {this.renderAnimatedBackgrounds(styles)}
-                            <Text style={styles.headerTitle}>WhatsApp</Text>
+                            <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+                                <TouchableOpacity style={{marginRight:25}} onPress={() => this.props.navigation.goBack()}>
+                                    <Ionicons name={'md-arrow-back'} color={'white'} size={22} />
+                                </TouchableOpacity>
+                                <View>
+                                <Text style={styles.headerTitle}>Select contact</Text>
+                                <Text style={{color:'white'}}>{this.props.appContacts ? `${this.props.appContacts.length} contacts` : ''} </Text>
+                                </View>
+                            </View>
                             <View style={styles.headerContent}>
                                 <TouchableOpacity style={{ marginRight: 20 }} onPress={() => this.onSearchPressed()}>
                                     <Icon name={'search'} color={'white'} size={22} />
@@ -239,11 +242,8 @@ export default class Header extends PureComponent {
                                     ref={this.setMenuRef}
                                     button={<Icon onPress={this.showMenu} name={'more-vertical'} color={'white'} size={22} />}
                                 >
-                                    <MenuItem onPress={() => alert('coming soon in next release')}>New Group</MenuItem>
-                                    <MenuItem onPress={() => alert('coming soon in next release')}>New broadcast</MenuItem>
-                                    <MenuItem onPress={() => alert('coming soon in next release')}>Starred Messages</MenuItem>
-                                    <MenuItem onPress={() => this.openSettings()}>Settings</MenuItem>
-                                    <MenuItem onPress={() => this.logout()}>Logout</MenuItem>
+                                    <MenuItem onPress={() => alert('coming soon in next release')}>Refresh</MenuItem>
+                                    <MenuItem onPress={() => alert('coming soon in next release')}>Help</MenuItem>
                                 </Menu>
                             </View>
                         </>
@@ -263,11 +263,11 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         color: 'white',
-        fontSize: 22,
+        fontSize: 19,
         fontWeight: 'bold'
     },
     mainHeader: {
-        height: 50,
+        height: 60,
         paddingHorizontal: 20,
         backgroundColor: colors.themeColor,
         justifyContent: 'space-between',

@@ -23,6 +23,18 @@ export default function user(state =initialState, action = {} ) {
         fcmToken: action.fcmToken || state.fcmToken
       }
     };
+    case 'contact': {
+      return {
+        ...state,
+        allContacts: action.val,
+      }
+    };
+    case 'appContacts': {
+      return {
+        ...state,
+        appContacts: action.val,
+      }
+    };
     default:
       return state;
   }

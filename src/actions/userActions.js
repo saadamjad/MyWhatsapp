@@ -61,62 +61,62 @@ export function registerUser(signupData) {
   }
 }
 
-export function contact() {
+export function contact(forceUpdate=false) {
   return async function (dispatch, getState) {
-    let number = '9510810524';
-    console.log("number => ",number)
-    firestore.collection('users').where('mobileNo', '==', number).get().then((data)=>{
-      if(data.docs.length){
-        console.log(data.docs[0].data())
-      }
-    }).catch((err)=>{
-      console.log("error => ",err)
-    });
-    console.log("snapshot => ",snapshot);
-    console.log(snapshot.docs.length);
-    console.log(snapshot.docs[0].data())
-    Contacts.getAll(async (err, allContacts) => {
-      console.log("all contacts => ",allContacts)
-      let resContacts = [...allContacts];
-      if (resContacts && resContacts.length) {
-
-        let newCont = {};
-
-        let myProfileData = getState().user.userData;
-        let myCountryCode = myProfileData.countryCode;
-
-        let requests = resContacts.map((contact) => {
-          return new Promise(async (resolve) => {
-            let phoneNumbers = contact.phoneNumbers;
-            let user = await checkUser(phoneNumbers,myCountryCode);
-            if (user) {
-              contact['imgUrl'] = user.imgUrl;
-              delete contact['thumbnailPath']
-              contact['userId'] = user.userID;
-              contact['phoneNumbers'] = [user.defaultNo];
-              contact['isVerified'] = user.isVerified;
-              newCont[user.userId] = contact;
-              resolve()
-            }
-            else {
-              const key = phoneNumbers[0] && phoneNumbers[0].number.replace(/[^0-9]/g, "");
-              if (key)
-                newCont[key] = contact;
-              resolve()
-            }
-          })
-        });
-
-        await Promise.all(requests);
-
-        console.log("?new conctact => ",newCont)
-        dispatch({
-          type: 'contact',
-          val: newCont
-        });
-
-      }
-    })
+    let userContacts = getState().user && getState().user.allContacts;
+    console.log("state user contacts => ",userContacts)
+    if(!userContacts || forceUpdate){
+      Contacts.getAll(async (err, allContacts) => {
+      
+        let resContacts = [...allContacts];
+        if (resContacts && resContacts.length) {
+  
+          let newCont = {},appContacts=[];
+  
+          let myProfileData = getState().user.userData;
+          let myCountryCode = myProfileData.countryCode;
+          
+          let requests = resContacts.map((contact) => {
+            return new Promise(async (resolve) => {
+              let phoneNumbers = contact.phoneNumbers;
+              let user = await checkUser(phoneNumbers,myCountryCode);
+             
+              if (user) {
+                contact['imgUrl'] = user.imgUrl;
+                delete contact['thumbnailPath']
+                contact['userID'] = user.userID;
+                contact['phoneNumbers'] = [user.defaultNo];
+                contact['isVerified'] = user.isVerified;
+                newCont[user.userID] = contact;
+                appContacts.push(user)
+                resolve()
+              }
+              else {
+                const key = phoneNumbers[0] && phoneNumbers[0].number.replace(/[^0-9]/g, "");
+                if (key)
+                  newCont[key] = contact;
+                resolve()
+              }
+            })
+          });
+  
+          await Promise.all(requests);
+  
+          console.log("?new conctact => ",newCont);
+          console.log("appw conctact => ",appContacts);
+          dispatch({
+            type: 'contact',
+            val: newCont
+          });
+          dispatch({
+            type: 'appContacts',
+            val: appContacts
+          });
+  
+        }
+      })
+    }
+    
   }
 }
 
@@ -124,13 +124,11 @@ async function checkUser(phoneNumbers,myCountryCode) {
   let finalData;
   const user = phoneNumbers.map(k => (async () => {
     const number = k.number.replace(`+${myCountryCode}`,'').replace(/\D/g,'');
-    
-    const snapshot = await firestore.collection('users').where('mobileNo', '==', number).get();
-    if (snapshot.docs.length > 0) {
-      console.log("snapshot docs => ",snapshot.docs)
-      let userData = snapshot.docs[0].data();
-      finalData = { ...userData, userID: snapshot.docs[0].id, defaultNo: k };
-    }
+      const snapshot = await firestore.collection('users').where('mobileNo', '==', number).get();
+      if (snapshot.docs.length > 0) {
+        let userData = snapshot.docs[0].data();
+        finalData = { ...userData, userID: snapshot.docs[0].id, defaultNo: k };
+      }
   })())
   await Promise.all(user);
   return finalData
