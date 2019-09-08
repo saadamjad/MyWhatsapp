@@ -23,7 +23,7 @@ class ContactList extends PureComponent {
 
     _renderItem(item,index){
         return(
-            <SingleContact contact={item} />
+            <SingleContact contact={item} {...this.props} />
         )
     }
 
@@ -35,7 +35,6 @@ class ContactList extends PureComponent {
                 <ContactsHeader appContacts={this.props.appContacts} {...this.props} />
                 <VirtualizedList
                     data={this.props.appContacts}
-                    inverted={true}
                     renderItem={({ item, index }) => this._renderItem(item, index)}
                     ref={reff => { this.VirtualizedList = reff; }}
                     windowSize={30}

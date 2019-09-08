@@ -7,6 +7,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import * as Animatable from 'react-native-animatable';
 import colors from '../../appConfig/color';
 import Dialog, { SlideAnimation, DialogContent } from 'react-native-popup-dialog';
+import ImagePicker from 'react-native-image-picker';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -22,8 +23,9 @@ class SettingsScreen extends Component {
             editProfile: false,
             imageSelector: false,
             editDisplayName: false,
-            displayName: 'Ravi Sojitra',
+            displayName: this.props.userData.userName,
             aboutMe: `This is so cool!! isn't it?`,
+            removePhotoConfirmation:false
         }
         this.animatedValue = new Animated.Value(0);
         this.animatedImageWidth = new Animated.Value(0);
@@ -33,6 +35,10 @@ class SettingsScreen extends Component {
 
     onBackPress() {
         this.props.navigation.goBack();
+    }
+
+    componentDidMount() {
+        this.props.actions.registerOnChangeData();
     }
 
     animateMyProfile() {
@@ -99,8 +105,38 @@ class SettingsScreen extends Component {
         })
     }
 
+    saveUserName() {
+        Keyboard.dismiss();
+        this.props.actions.changeUserName(this.state.displayName)
+        this.setState({ editDisplayName: false });
+    }
+
+    launchLibrary() {
+
+        const options = {
+            title: 'Select Avatar',
+            customButtons: [{ name: 'fb', title: 'Choose Photo from Gallery' }],
+            permissionDenied: {
+                title: "Give permission",
+                text: "Text",
+                reTryTitle: 'reTryTitle',
+                okTitle: "okTitle"
+            }
+        };
+
+        ImagePicker.launchImageLibrary(options, (response) => {
+            this.setState({ isImageSelected: true, imagePath: response.path, imageData: response.data })
+        });
+    }
+
+    removeProfilePic(){
+        this.setState({ removePhotoConfirmation:false });
+        this.props.actions.removeProfilePic();
+    }
+
     render() {
-        //top:70,left:75
+        let { userData } = this.props;
+        console.log("userData => ", userData)
         const position = {
             transform: [
                 {
@@ -129,6 +165,9 @@ class SettingsScreen extends Component {
         });
 
         let isEditProfile = this.state.editProfile;
+
+        let userImage = userData.profilePic ? { uri: userData.profilePic } : require('./../../assets/user.png');
+
         return (
             <KeyboardAvoidingView style={styles.container}>
 
@@ -136,7 +175,7 @@ class SettingsScreen extends Component {
 
                 <Animated.View style={[position, styles.row]}>
                     <TouchableOpacity onPress={() => this.animateMyProfile()}>
-                        <Animated.Image style={{ height: imageHeight, width: imageHeight, borderRadius: 70 }} source={require('./../../assets/users/tony.jpg')} />
+                        <Animated.Image style={{ height: imageHeight, width: imageHeight, borderRadius: 70 }} source={userImage} />
 
                         {
                             this.state.editProfile &&
@@ -147,7 +186,7 @@ class SettingsScreen extends Component {
 
                     </TouchableOpacity>
                     <Animated.View style={[styles.nameContainer, { opacity }]}>
-                        <Text style={styles.userName}> Tony Stark </Text>
+                        <Text style={styles.userName}> {userData.userName} </Text>
                         <Text numberOfLines={1} ellipsizeMode='tail' style={styles.statusText}>Get lost squidward!</Text>
                     </Animated.View>
                 </Animated.View>
@@ -167,7 +206,7 @@ class SettingsScreen extends Component {
 
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={[styles.settingRow, { justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#ddd', paddingHorizontal: 0, paddingVertical: 10 }]}>
+                        <TouchableOpacity onPress={() => this.props.navigation.navigate('AboutMe')} style={[styles.settingRow, { justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#ddd', paddingHorizontal: 0, paddingVertical: 10 }]}>
                             <MaterialIcons style={styles.settingIcon} size={23} name={'info-outline'} color={colors.lightThemeColor} />
 
                             <View style={{ justifyContent: 'space-between', padding: 10, flex: 1 }}>
@@ -175,7 +214,6 @@ class SettingsScreen extends Component {
                                 <Text style={{ color: 'black', fontSize: 15 }}>This is so cool!!! isn't it?</Text>
                             </View>
                             <MaterialCommunityIcons style={styles.settingIcon} size={23} name={'pencil'} color={colors.lightgray} />
-
                         </TouchableOpacity>
 
                         <View style={[styles.settingRow, { justifyContent: 'space-between', borderBottomWidth: 1, borderColor: '#ddd', paddingHorizontal: 0, paddingVertical: 10 }]}>
@@ -256,15 +294,45 @@ class SettingsScreen extends Component {
                             <Image source={require('./../../assets/gallery.png')} style={styles.modalIcon} />
                             <Text>Gallery</Text>
                         </TouchableOpacity>
+
                         {
-                            this.state.isImageSelected &&
-                            <TouchableOpacity style={styles.flexCenter} onPress={() => this.setState({ isImageSelected: false, imagePath: null, imageData: null, imageSelector: false })}>
+                            !userData.profilePic || userData.profilePic != '' &&
+                            <TouchableOpacity style={styles.flexCenter} onPress={() => this.setState({imageSelector:false, removePhotoConfirmation: true })}>
                                 <View style={styles.deleteIcon}>
-                                    <Ionicons name='md-trash' color='white' size={30} />
+                                    <Ionicons name='md-trash' color='white' size={25} />
                                 </View>
                                 <Text>Remove Photo</Text>
                             </TouchableOpacity>
                         }
+
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog
+                    rounded={false}
+                    visible={this.state.removePhotoConfirmation}
+                    onTouchOutside={() => {
+                        this.setState({ removePhotoConfirmation: false });
+                    }}
+                    dialogAnimation={new SlideAnimation({
+                        slideFrom: 'bottom',
+                    })}
+                    onHardwareBackPress={() => {
+                        this.setState({ removePhotoConfirmation: false });
+                        return true;
+                    }}
+                    dialogStyle={{ width: '85%'}}
+                >
+                    <DialogContent style={{ height: 100, paddingVertical: 15, width: '100%' }}>
+                        <Text style={{ color: 'black', fontSize: 18, marginBottom: 15 }}>Remove profile photo?</Text>
+                        <View style={{marginTop:10, justifyContent: 'flex-end', flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                            <TouchableOpacity style={{ marginRight: 30 }} onPress={() =>  this.setState({ removePhotoConfirmation: false }) }>
+                                <Text style={{ color: colors.themeColor, fontWeight: 'bold', fontSize: 14 }}>CANCEL</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => this.removeProfilePic()}>
+                                <Text style={{ color: colors.themeColor, fontWeight: 'bold', fontSize: 14 }}>REMOVE</Text>
+                            </TouchableOpacity>
+                        </View>
                     </DialogContent>
                 </Dialog>
 
@@ -283,21 +351,21 @@ class SettingsScreen extends Component {
                     }}
                     dialogStyle={{ width: '100%', height: 150, position: 'absolute', bottom: 0, borderTopLeftRadius: 15, borderTopRightRadius: 15 }}
                 >
-                    <DialogContent style={{height:150,paddingTop:25,width:'100%'}}>
-                        <Text style={{ fontWeight: 'bold', color: 'black',fontSize:18,marginBottom:10 }}>Enter your name</Text>
+                    <DialogContent style={{ height: 150, paddingTop: 25, width: '100%' }}>
+                        <Text style={{ fontWeight: 'bold', color: 'black', fontSize: 18, marginBottom: 10 }}>Enter your name</Text>
                         <TextInput
                             value={this.state.displayName}
                             onChangeText={(text) => this.setState({ displayName: text })}
                             numberOfLines={1}
-                            style={{ padding: 0, borderBottomColor: colors.themeColor, borderBottomWidth: 2,marginBottom:30,fontSize:16 }}
+                            style={{ padding: 0, borderBottomColor: colors.themeColor, borderBottomWidth: 2, marginBottom: 30, fontSize: 16 }}
                             ref={(e) => { this.editNameInputRef = e; }}
                         />
-                        <View style={{ justifyContent: 'flex-end',flexDirection:'row',alignItems:'center',flex:1 }}>
-                            <TouchableOpacity style={{marginRight:30}} onPress={()=> {Keyboard.dismiss(),this.setState({ editDisplayName: false })}}>
-                                <Text style={{ color: colors.themeColor,fontWeight:'bold',fontSize:15 }}>CANCEL</Text>
+                        <View style={{ justifyContent: 'flex-end', flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                            <TouchableOpacity style={{ marginRight: 30 }} onPress={() => { Keyboard.dismiss(), this.setState({ editDisplayName: false }) }}>
+                                <Text style={{ color: colors.themeColor, fontWeight: 'bold', fontSize: 15 }}>CANCEL</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={()=> {Keyboard.dismiss(),this.setState({ editDisplayName: false })}}>
-                                <Text style={{ color: colors.themeColor,fontWeight:'bold',fontSize:15 }}>SAVE</Text>
+                            <TouchableOpacity onPress={() => this.saveUserName()}>
+                                <Text style={{ color: colors.themeColor, fontWeight: 'bold', fontSize: 15 }}>SAVE</Text>
                             </TouchableOpacity>
                         </View>
                     </DialogContent>
@@ -307,7 +375,21 @@ class SettingsScreen extends Component {
         )
     }
 }
-export default SettingsScreen
+
+function mapStateToProps(state) {
+    console.log(state.user.userData)
+    return {
+        userData: state.user.userData
+    };
+}
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators(userActions, dispatch),
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SettingsScreen);
+
 const styles = StyleSheet.create({
     container: {
         flex: 1
@@ -317,7 +399,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'flex-start',
         paddingVertical: 10,
-        paddingHorizontal: 15,
+        paddingHorizontal: 10,
         marginBottom: 10
     },
     accountSettings: {
@@ -379,14 +461,14 @@ const styles = StyleSheet.create({
         flex: 1
     },
     modalIcon: {
-        height: 60,
-        width: 60,
+        height: 50,
+        width: 50,
         borderRadius: 30,
         margin: 10
     },
     deleteIcon: {
-        height: 60,
-        width: 60,
+        height: 50,
+        width: 50,
         borderRadius: 30,
         margin: 10,
         backgroundColor: '#ff5c33',

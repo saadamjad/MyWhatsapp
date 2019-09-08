@@ -226,7 +226,7 @@ export default class contactsHeader extends PureComponent {
                         <>
                             {this.renderAnimatedBackgrounds(styles)}
                             <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
-                                <TouchableOpacity style={{marginRight:25}} onPress={() => this.props.navigation.goBack()}>
+                                <TouchableOpacity style={{flex:1,justifyContent:'center',paddingRight:25}} onPress={() => this.props.navigation.goBack()}>
                                     <Ionicons name={'md-arrow-back'} color={'white'} size={22} />
                                 </TouchableOpacity>
                                 <View>
@@ -273,6 +273,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row',
+        borderBottomWidth:1,
+        borderBottomColor:colors.themeColor
     },
     searchContainer: {
         backgroundColor: 'white',

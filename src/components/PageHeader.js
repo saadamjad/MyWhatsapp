@@ -13,7 +13,7 @@ export default class PageHeader extends Component {
     render() {
         return (
             <SafeAreaView>
-                <View style={styles.header}>
+                <View style={[styles.header,{height:this.props.headerHeight || 60}]}>
                     <TouchableOpacity onPress={() => this.props.onBackPress()}>
                         <Ionicons name={'md-arrow-back'} color='white' size={30} />
                     </TouchableOpacity>
@@ -30,7 +30,6 @@ const styles = StyleSheet.create({
         flex: 1
     },
     header: {
-        height: 60,
         paddingHorizontal: 15,
         backgroundColor: colors.themeColor,
         justifyContent: 'flex-start',

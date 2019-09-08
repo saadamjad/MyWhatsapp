@@ -2,7 +2,8 @@ import React, { PureComponent } from 'react';
 import { View, Text, StatusBar, VirtualizedList, Dimensions, Image, StyleSheet, TouchableOpacity, TextInput, Keyboard, SafeAreaView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import _ from 'underscore';
-import colors from './../../appConfig/color'
+import colors from './../../appConfig/color';
+import UserPlaceholder from '../../components/UserPlaceholder';
 
 export default class SingleContact extends PureComponent {
 
@@ -11,16 +12,15 @@ export default class SingleContact extends PureComponent {
     }
 
     componentDidMount(){
-        console.log(this.props)
     }
 
     render() {
         let {contact} = this.props;
-        let userImage = 'https://firebasestorage.googleapis.com/v0/b/mywhatsapp-202fa.appspot.com/o/userImages%2FcpxA4wgfF0807DuklTZY.jpg?alt=media&token=5eb939d1-c425-44cb-8e3e-99ba796768ef';
+        let userImage = contact.profilePic ? {uri:contact.profilePic} : require('./../../assets/user.png');
         return (
             <TouchableOpacity activeOpacity={0.5} onPress={() => this.props.navigation.navigate('UserChat')}>
                 <View style={styles.row}>
-                    <Image source={{uri:userImage}} style={styles.pic} />
+                    <UserPlaceholder source={userImage} style={styles.pic} borderRadius={20} placeholderStyle={styles.pic}/>
                     <View>
                         <View style={styles.nameContainer}>
                             <Text style={styles.nameTxt}>{contact && contact.userName}</Text>
@@ -39,8 +39,6 @@ const styles = StyleSheet.create({
     row: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderColor: '#f7f7f7',
-        borderBottomWidth: 1,
         padding: 10,
         backgroundColor: '#fff',
     },

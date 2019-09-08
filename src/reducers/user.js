@@ -35,6 +35,12 @@ export default function user(state =initialState, action = {} ) {
         appContacts: action.val,
       }
     };
+    case 'updateUserData': {
+      return {
+        ...state,
+        userData: action.userData,
+      }
+    };
     default:
       return state;
   }

@@ -94,11 +94,8 @@ export default class Header extends PureComponent {
 
     onLayout = (event) => {
         const { width, height } = event.nativeEvent.layout;
-        console.log("width => ", width)
-        console.log("height => ", height)
         // pythagorean
         const radius = Math.sqrt(Math.pow(height, 2) + Math.pow(width, 2));
-        console.log("radius => ", radius)
         let diameter = radius * 2;
         // because there is issue in react native that we can't set scale value to 0, we need to use
         // 0.01 and it means we still see the point even if the scale set to 0.01

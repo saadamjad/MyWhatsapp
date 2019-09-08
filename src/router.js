@@ -9,6 +9,7 @@ import DefaultScreen from './DefaultScreen';
 import Signup from './containers/signup'
 import OtpVerify from './containers/signup/otpVerify'
 import SignupProfile from "./containers/profile/signupProfile";
+import AboutMe from "./containers/profile/AboutMe";
 import Home from "./containers/home/home";
 import SettingsScreen from "./containers/settings/settings";
 import UserChat from './containers/chat/UserChat';
@@ -88,10 +89,13 @@ const AppNavigator = createStackNavigator(
     },
     ContactList:{
       screen:ContactList
+    },
+    AboutMe:{
+      screen:AboutMe
     }
   },
   {
-    initialRouteName: "Home",
+    initialRouteName: "DefaultScreen",
     headerMode: "none",
     cardStyle: {
       backgroundColor: "white"
