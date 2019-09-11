@@ -41,6 +41,14 @@ export default function user(state =initialState, action = {} ) {
         userData: action.userData,
       }
     };
+    case 'userImageUpdate': {
+      return {
+        ...state,
+        userImageUpdateStatus: action.userImageUpdateStatus,
+        userImageUpdateText: action.userImageUpdateText
+      }
+    };
+
     default:
       return state;
   }

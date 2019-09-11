@@ -7,20 +7,22 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default class ChatHeader extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
     }
 
     render() {
+        let {userData} = this.props.navigation.state.params;
+        let userImage = userData.profilePic ? { uri: userData.profilePic } : require('./../../assets/user.png');
         return (
             <SafeAreaView style={styles.header}>
                 <View style={{ flexDirection: 'row' }}>
                     <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }} onPress={() => this.props.navigation.goBack()}>
                         <Ionicons name={'md-arrow-back'} color='white' size={30} />
-                        <Image source={require('./../../assets/users/natasha.jpg')} style={styles.pic} />
+                        <Image source={userImage} style={styles.pic} />
                     </TouchableOpacity>
                     <View>
-                        <Text style={{ fontSize: 18, color: 'white', fontWeight: '400' }}>Natasha</Text>
+                        <Text style={{ fontSize: 18, color: 'white', fontWeight: '400' }}>{userData.savedName || userData.userName}</Text>
                         <Text style={{ fontSize: 12, color: 'white' }}>Online</Text>
                     </View>
                 </View>

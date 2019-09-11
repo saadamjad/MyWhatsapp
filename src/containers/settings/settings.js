@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Keyboard, Image, Animated, TextInput, KeyboardAvoidingView } from 'react-native';
+import React, { PureComponent } from 'react'
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Keyboard, Image, Animated, TextInput, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
 import PageHeader from '../../components/PageHeader'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -15,7 +15,7 @@ import * as userActions from '../../actions/userActions';
 
 const DEVICE_WIDTH = Dimensions.get('window').width
 
-class SettingsScreen extends Component {
+class SettingsScreen extends PureComponent {
 
     constructor(props) {
         super(props);
@@ -25,7 +25,8 @@ class SettingsScreen extends Component {
             editDisplayName: false,
             displayName: this.props.userData.userName,
             aboutMe: `This is so cool!! isn't it?`,
-            removePhotoConfirmation:false
+            removePhotoConfirmation: false,
+            isProfilePicUploading: false
         }
         this.animatedValue = new Animated.Value(0);
         this.animatedImageWidth = new Animated.Value(0);
@@ -39,6 +40,12 @@ class SettingsScreen extends Component {
 
     componentDidMount() {
         this.props.actions.registerOnChangeData();
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (this.props.userImageUpdateStatus != nextProps.userImageUpdateStatus) {
+            this.setState({ isProfilePicUploading: !nextProps.userImageUpdateStatus })
+        }
     }
 
     animateMyProfile() {
@@ -123,20 +130,20 @@ class SettingsScreen extends Component {
                 okTitle: "okTitle"
             }
         };
-
         ImagePicker.launchImageLibrary(options, (response) => {
-            this.setState({ isImageSelected: true, imagePath: response.path, imageData: response.data })
+            this.setState({ isImageSelected: true }, () => {
+                this.props.actions.changeProfilePicture(response.path);
+            });
         });
     }
 
-    removeProfilePic(){
-        this.setState({ removePhotoConfirmation:false });
+    removeProfilePic() {
+        this.setState({ removePhotoConfirmation: false });
         this.props.actions.removeProfilePic();
     }
 
     render() {
         let { userData } = this.props;
-        console.log("userData => ", userData)
         const position = {
             transform: [
                 {
@@ -179,8 +186,13 @@ class SettingsScreen extends Component {
 
                         {
                             this.state.editProfile &&
-                            <TouchableOpacity onPress={() => this.setState({ imageSelector: true })} style={{ height: 46, width: 46, backgroundColor: colors.themeColor, borderRadius: 23, justifyContent: 'center', alignItems: 'center', position: 'absolute', bottom: 0, right: 0 }}>
-                                <MaterialCommunityIcons style={{}} size={20} name={'camera'} color={'white'} />
+                            <TouchableOpacity disabled={this.state.isProfilePicUploading} onPress={() => this.setState({ imageSelector: true })} style={{ height: 46, width: 46, backgroundColor: colors.themeColor, borderRadius: 23, justifyContent: 'center', alignItems: 'center', position: 'absolute', bottom: 0, right: 0 }}>
+                                {
+                                    this.state.isProfilePicUploading ?
+                                        <ActivityIndicator size='large' color={'white'} />
+                                        :
+                                        <MaterialCommunityIcons style={{}} size={20} name={'camera'} color={'white'} />
+                                }
                             </TouchableOpacity>
                         }
 
@@ -297,7 +309,7 @@ class SettingsScreen extends Component {
 
                         {
                             !userData.profilePic || userData.profilePic != '' &&
-                            <TouchableOpacity style={styles.flexCenter} onPress={() => this.setState({imageSelector:false, removePhotoConfirmation: true })}>
+                            <TouchableOpacity style={styles.flexCenter} onPress={() => this.setState({ imageSelector: false, removePhotoConfirmation: true })}>
                                 <View style={styles.deleteIcon}>
                                     <Ionicons name='md-trash' color='white' size={25} />
                                 </View>
@@ -321,12 +333,12 @@ class SettingsScreen extends Component {
                         this.setState({ removePhotoConfirmation: false });
                         return true;
                     }}
-                    dialogStyle={{ width: '85%'}}
+                    dialogStyle={{ width: '85%' }}
                 >
                     <DialogContent style={{ height: 100, paddingVertical: 15, width: '100%' }}>
                         <Text style={{ color: 'black', fontSize: 18, marginBottom: 15 }}>Remove profile photo?</Text>
-                        <View style={{marginTop:10, justifyContent: 'flex-end', flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                            <TouchableOpacity style={{ marginRight: 30 }} onPress={() =>  this.setState({ removePhotoConfirmation: false }) }>
+                        <View style={{ marginTop: 10, justifyContent: 'flex-end', flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                            <TouchableOpacity style={{ marginRight: 30 }} onPress={() => this.setState({ removePhotoConfirmation: false })}>
                                 <Text style={{ color: colors.themeColor, fontWeight: 'bold', fontSize: 14 }}>CANCEL</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => this.removeProfilePic()}>
@@ -377,9 +389,10 @@ class SettingsScreen extends Component {
 }
 
 function mapStateToProps(state) {
-    console.log(state.user.userData)
     return {
-        userData: state.user.userData
+        userData: state.user.userData,
+        userImageUpdateStatus: state.user.userImageUpdateStatus,
+        userImageUpdateText: state.user.userImageUpdateText
     };
 }
 function mapDispatchToProps(dispatch) {
@@ -482,4 +495,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingTop: 25
     },
+    profilePicUploading: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center'
+    }
 })

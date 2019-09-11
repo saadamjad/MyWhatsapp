@@ -8,8 +8,8 @@ import ChatHeader from './../../components/chat/ChatHeader';
 
 export default class UserChat extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
     }
 
     render() {

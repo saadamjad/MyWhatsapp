@@ -84,6 +84,34 @@ export function changeUserName(userName) {
   }
 }
 
+export function changeProfilePicture(imagePath) {
+  return async function (dispatch, getState) {
+    let userData = getState().user.userData;
+
+    dispatch({ 
+      type:'userImageUpdate',
+      userImageUpdateStatus:false,
+      userImageUpdateText:'Uploading...' 
+    });
+
+    let storageRef = firebase.storage().ref().child(`userImages/${userData.userId}.jpg`);
+    await storageRef.putFile(imagePath);
+    userImage = await storageRef.getDownloadURL();
+    firestore.collection('users').doc(userData.userId).update({ profilePic: userImage})
+
+    dispatch({
+      type: 'updateUserData',
+      userData: { ...userData, profilePic:userImage }
+    });
+
+    dispatch({ 
+      type:'userImageUpdate',
+      userImageUpdateStatus:true,
+      userImageUpdateText:'Image Uploaded Successfully.' 
+    });
+  }
+}
+
 export function removeProfilePic() {
   return function (dispatch, getState) {
     let userData = getState().user.userData;
@@ -144,13 +172,14 @@ export function contact(forceUpdate = false) {
             return new Promise(async (resolve) => {
               let phoneNumbers = contact.phoneNumbers;
               let user = await checkUser(phoneNumbers, myCountryCode);
-
               if (user) {
                 contact['imgUrl'] = user.imgUrl;
-                delete contact['thumbnailPath']
+                delete contact['thumbnailPath'];
                 contact['userID'] = user.userID;
                 contact['phoneNumbers'] = [user.defaultNo];
                 contact['isVerified'] = user.isVerified;
+                user['savedName'] = contact.givenName +' '+(contact.familyName||'');
+                
                 newCont[user.userID] = contact;
                 appContacts.push(user)
                 resolve()

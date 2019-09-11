@@ -1,10 +1,14 @@
 import React, { PureComponent } from 'react'
-import { View, StyleSheet, VirtualizedList } from 'react-native';
+import { View, StyleSheet, VirtualizedList,Text } from 'react-native';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as userActions from './../../actions/userActions';
 import SingleContact from './SingleContact';
+import _ from 'underscore';
+import colors from './../../appConfig/color';
+
+import * as helpers from './../../helpers';
 
 import ContactsHeader from '../../components/contactsHeader';
 
@@ -13,12 +17,19 @@ class ContactList extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
-            showSearchbar: false
+            showSearchbar: false,
+            allContacts:props.appContacts || []
         }
     }
 
     componentDidMount() {
         this.props.actions.contact(true);
+    }   
+
+    componentWillReceiveProps(nextProps){
+        if(! helpers.isEqual(nextProps.appContacts,this.state.allContacts)){
+            this.setState({ allContacts:nextProps.appContacts })
+        }
     }
 
     _renderItem(item,index){
@@ -27,14 +38,25 @@ class ContactList extends PureComponent {
         )
     }
 
+    onContactSearch(text){
+        let searchText = text.trim();
+        let allContacts = [...this.props.appContacts];
+
+        if(searchText == ''){
+            this.setState({ allContacts:this.props.appContacts })
+        } else {
+            let filteredContacts = allContacts.filter((contact)=> (contact.savedName || contact.userName).toLowerCase().indexOf(searchText) >= 0 );
+            this.setState({allContacts:filteredContacts})
+        }
+    }
+
     render() {
 
         return (
-
             <View style={{ flex: 1 }} >
-                <ContactsHeader appContacts={this.props.appContacts} {...this.props} />
+                <ContactsHeader onContactSearch={(searchText)=> this.onContactSearch(searchText)} appContacts={this.state.allContacts} {...this.props} />
                 <VirtualizedList
-                    data={this.props.appContacts}
+                    data={this.state.allContacts}
                     renderItem={({ item, index }) => this._renderItem(item, index)}
                     ref={reff => { this.VirtualizedList = reff; }}
                     windowSize={30}
@@ -49,6 +71,11 @@ class ContactList extends PureComponent {
                     getItemLayout={(data, index) => (
                         { length: 100, offset: 100 * index, index }
                     )}
+                    ListEmptyComponent={()=>{
+                        return (
+                            <Text style={{color:colors.lightgray,fontSize:20,alignSelf:'center',marginTop:20}}>No Contacts found...</Text>
+                        )
+                    }}
                 />
             </View>
         )
@@ -56,10 +83,9 @@ class ContactList extends PureComponent {
 }
 
 function mapStateToProps(state) {
-    console.log(state.user.appContacts)
+    
     return {
         userData: state.user.userData,
-        userContacts: state.user.allContacts,
         appContacts: state.user.appContacts,
     };
 }

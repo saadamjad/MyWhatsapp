@@ -4,9 +4,9 @@ import Icon from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { TouchableOpacity, TextInput } from 'react-native-gesture-handler';
 import Menu, { MenuItem } from 'react-native-material-menu';
+import _ from 'underscore'
 
 import { NavigationActions, StackActions } from 'react-navigation';
-
 import colors from './../appConfig/color';
 
 const getBackButtonListener = callback =>
@@ -31,6 +31,7 @@ export default class contactsHeader extends PureComponent {
             // it'll change zIndex after the animation is complete
             order: 'defaultFirst',
             positionValue: new Animated.Value(0),
+            searchText:''
         }
 
         this.backButtonListener = this.state.showSearchbar ? getBackButtonListener(this.onSearchCloseRequested) : null
@@ -207,6 +208,10 @@ export default class contactsHeader extends PureComponent {
         this.props.navigation.navigate('Settings')
     }
 
+    searchContact = _.debounce(() => {
+        this.props.onContactSearch(this.state.searchText)
+    }, 250)
+
     render() {
         return (
             <Animated.View onLayout={this.onLayout} style={[styles.mainHeader, { paddingHorizontal: this.state.showSearchbar ? 0 : 20 }]}>
@@ -220,18 +225,20 @@ export default class contactsHeader extends PureComponent {
                                 placeholder='Search...'
                                 style={{ fontSize: 18 }}
                                 ref='searchInput'
+                                value={this.state.searchText}
+                                onChangeText={(text) => this.setState({ searchText:text }, () => { this.searchContact() })}
                             />
                         </View>
                         :
                         <>
                             {this.renderAnimatedBackgrounds(styles)}
-                            <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
-                                <TouchableOpacity style={{flex:1,justifyContent:'center',paddingRight:25}} onPress={() => this.props.navigation.goBack()}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                <TouchableOpacity style={{ flex: 1, justifyContent: 'center', paddingRight: 25 }} onPress={() => this.props.navigation.goBack()}>
                                     <Ionicons name={'md-arrow-back'} color={'white'} size={22} />
                                 </TouchableOpacity>
                                 <View>
-                                <Text style={styles.headerTitle}>Select contact</Text>
-                                <Text style={{color:'white'}}>{this.props.appContacts ? `${this.props.appContacts.length} contacts` : ''} </Text>
+                                    <Text style={styles.headerTitle}>Select contact</Text>
+                                    <Text style={{ color: 'white' }}>{this.props.appContacts ? `${this.props.appContacts.length} contacts` : ''} </Text>
                                 </View>
                             </View>
                             <View style={styles.headerContent}>
@@ -273,8 +280,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row',
-        borderBottomWidth:1,
-        borderBottomColor:colors.themeColor
+        borderBottomWidth: 1,
+        borderBottomColor: colors.themeColor
     },
     searchContainer: {
         backgroundColor: 'white',

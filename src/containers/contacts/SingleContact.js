@@ -12,21 +12,22 @@ export default class SingleContact extends PureComponent {
     }
 
     componentDidMount(){
+        console.log(this.props.contact)
     }
 
     render() {
         let {contact} = this.props;
         let userImage = contact.profilePic ? {uri:contact.profilePic} : require('./../../assets/user.png');
         return (
-            <TouchableOpacity activeOpacity={0.5} onPress={() => this.props.navigation.navigate('UserChat')}>
+            <TouchableOpacity activeOpacity={0.5} onPress={() => this.props.navigation.navigate('UserChat',{userData:contact})}>
                 <View style={styles.row}>
                     <UserPlaceholder source={userImage} style={styles.pic} borderRadius={20} placeholderStyle={styles.pic}/>
                     <View>
                         <View style={styles.nameContainer}>
-                            <Text style={styles.nameTxt}>{contact && contact.userName}</Text>
+                            <Text style={styles.nameTxt}>{contact && contact.savedName || contact.userName}</Text>
                         </View>
                         <View style={styles.msgContainer}>
-                            <Text style={styles.msgTxt}>asdf</Text>
+                            <Text numberOfLines={1} style={styles.msgTxt}>{contact.aboutMe}</Text>
                         </View>
                     </View>
                 </View>
@@ -68,5 +69,6 @@ const styles = StyleSheet.create({
         color: '#666',
         fontSize: 12,
         marginLeft: 15,
+        maxWidth:'90%'
     },
 })
