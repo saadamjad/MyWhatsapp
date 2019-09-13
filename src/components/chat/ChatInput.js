@@ -5,9 +5,13 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import _ from 'underscore';
 import colors from './../../appConfig/color'
 import Dialog, { FadeAnimation, DialogContent } from 'react-native-popup-dialog';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+import * as chatActions from './../../actions/chatActions';
 
 const { width, height } = Dimensions.get('window');
-export default class ChatInput extends Component {
+class ChatInput extends Component {
 
     constructor() {
         super();
@@ -17,6 +21,7 @@ export default class ChatInput extends Component {
             editedMsg: false,
             showImagesModal: false,
             selectedImagePath: [],
+            selectedImages: [],
             disabledSend: false,
             showFileTypeSelector: false
         }
@@ -28,32 +33,76 @@ export default class ChatInput extends Component {
         this.setState({ showFileTypeSelector: true })
     }
 
+    msgChanged(msg) {
+        this.setState({ msg: msg })
+    }
+
+    sendMessage() {
+        if (!this.state.msg.trim() && this.state.selectedImages.length == 0) return;
+
+        let { userData } = this.props.navigation.state.params;
+        if (this.state.editedMsg) {
+            this.props.userChatAction.updateMsg(encrypt(this.state.msg.trim()), this.props.selectedUser.userId, this.props.selectedMsg.chatKey);
+            this.closeEdit()
+        } else {
+            const { replayMsg } = this.props;
+            var chatObj = {
+                senderID: userData.userId,
+                senderName: userData.userName,
+                msg: this.state.msg.trim(),
+                msgType: 'text',
+                imgUrl: '',
+                msgTime: +new Date(),
+                readBy: [userData.userId],
+                replayMsg: replayMsg ? { senderID: replayMsg.senderID, senderName: replayMsg.senderName, msg: replayMsg.msg, msgType: replayMsg.msgType, imgUrl: replayMsg.imgUrl, chatKey: replayMsg.chatKey } : null
+            };
+            this.props.chatAction.sentChatMsg(chatObj, userData.userId, this.state.selectedImages);
+        }
+    }
+
     render() {
+        let msg = this.state.msg.trim();
         return (
-            <View style={[styles.input, { height: this.state.height }]}>
-                <TouchableOpacity activeOpacity={0.5} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                    <MaterialCommunityIcons color={colors.darkgray} name={'emoticon-excited-outline'} size={25} />
-                </TouchableOpacity>
-                <TextInput
-                    style={{ flex: 1, borderRadius: 20, paddingLeft: 10, fontSize: 18, height: this.state.height || 44 }}
-                    value={this.state.msg}
-                    ref={(e) => { this.msgInput = e; }}
-                    onChangeText={msg => this.setState({ msg })}
-                    blurOnSubmit={false}
-                    onSubmitEditing={() => this.send()}
-                    placeholder="Type a message"
-                    returnKeyType="send"
-                    multiline={true}
-                    onContentSizeChange={(event) => {
-                        this.setState({ height: Math.min(120, event.nativeEvent.contentSize.height) })
-                    }}
-                />
-                <TouchableOpacity onPress={() => this.showFileTypeSelector()} activeOpacity={0.5} style={{ justifyContent: 'center', alignItems: 'center', paddingRight: 15 }}>
-                    <Entypo color={colors.darkgray} name={'attachment'} size={25} />
-                </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.5} style={{ justifyContent: 'center', alignItems: 'center', paddingRight: 15 }}>
-                    <MaterialCommunityIcons color={colors.darkgray} name={'camera'} size={25} />
-                </TouchableOpacity>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginHorizontal: 10 }}>
+                <View style={[styles.input, { height: this.state.height, width: msg != '' ? width - 70 : width - 20, marginRight: msg != '' ? 10 : 0 }]}>
+
+                    <TouchableOpacity activeOpacity={0.5} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                        <MaterialCommunityIcons color={colors.darkgray} name={'emoticon-excited-outline'} size={25} />
+                    </TouchableOpacity>
+                    <TextInput
+                        style={{ flex: 1, borderRadius: 20, paddingLeft: 10, fontSize: 18, height: this.state.height || 44 }}
+                        value={this.state.msg}
+                        ref={(e) => { this.msgInput = e; }}
+                        onChangeText={msg => this.msgChanged(msg)}
+                        blurOnSubmit={false}
+                        onSubmitEditing={() => this.send()}
+                        placeholder="Type a message"
+                        returnKeyType="send"
+                        multiline={true}
+                        onContentSizeChange={(event) => {
+                            this.setState({ height: Math.min(120, event.nativeEvent.contentSize.height) })
+                        }}
+                    />
+
+                    <TouchableOpacity onPress={() => this.showFileTypeSelector()} activeOpacity={0.5} style={{ justifyContent: 'center', alignItems: 'center', paddingRight: 15 }}>
+                        <Entypo color={colors.darkgray} name={'attachment'} size={25} />
+                    </TouchableOpacity>
+
+                    {
+                        msg == '' &&
+                        <TouchableOpacity activeOpacity={0.5} style={{ justifyContent: 'center', alignItems: 'center', paddingRight: 15 }}>
+                            <MaterialCommunityIcons color={colors.darkgray} name={'camera'} size={25} />
+                        </TouchableOpacity>
+                    }
+
+                </View>
+
+                {
+                    msg != '' &&
+                    <TouchableOpacity onPress={()=> this.sendMessage()} style={styles.sendMessageButton} activeOpacity={0.5}>
+                        <MaterialCommunityIcons color={'white'} name={'send'} size={22} />
+                    </TouchableOpacity>
+                }
 
                 <Dialog
                     rounded={false}
@@ -92,14 +141,14 @@ export default class ChatInput extends Component {
                         </TouchableOpacity>
 
                         <TouchableOpacity style={[styles.flexCenter, styles.fileType]} onPress={() => this.setState({ showFileTypeSelector: false }, () => this.launchLibrary())}>
-                            <View style={[styles.customIcon, styles.flexCenter,styles.audioColors]}>
+                            <View style={[styles.customIcon, styles.flexCenter, styles.audioColors]}>
                                 <MaterialCommunityIcons color={'white'} name={'headphones'} size={25} />
                             </View>
                             <Text>Audio</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={[styles.flexCenter, styles.fileType]} onPress={() => this.setState({ showFileTypeSelector: false }, () => this.launchLibrary())}>
-                            <View style={[styles.customIcon, styles.flexCenter,styles.locationColors]}>
+                            <View style={[styles.customIcon, styles.flexCenter, styles.locationColors]}>
                                 <Entypo color={'white'} name={'location'} size={25} />
                             </View>
                             <Text>Location</Text>
@@ -118,6 +167,22 @@ export default class ChatInput extends Component {
     }
 }
 
+function mapStateToProps(state) {
+    return {
+        userData: state.user.userdata,
+        ChatUsers: state.Chat.ChatUsers,
+        allContacts: state.user.allContacts,
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        chatAction: bindActionCreators(chatActions, dispatch),
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ChatInput);
+
 const styles = StyleSheet.create({
     container: {
         flex: 1
@@ -128,8 +193,6 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         justifyContent: 'space-between',
         color: 'black',
-        width: width - 20,
-        marginHorizontal: 10,
         marginVertical: 5,
         borderRadius: 30,
         paddingLeft: 10,
@@ -163,7 +226,7 @@ const styles = StyleSheet.create({
         width: width - 20,
         borderRadius: 10,
         flexWrap: 'wrap',
-        paddingTop:5
+        paddingTop: 5
     },
     fileType: {
         marginVertical: 10
@@ -179,12 +242,20 @@ const styles = StyleSheet.create({
         borderWidth: 6,
         marginHorizontal: 20,
     },
-    locationColors:{
-        borderColor: colors.lightGreen, 
+    locationColors: {
+        borderColor: colors.lightGreen,
         backgroundColor: colors.darkGreen
     },
-    audioColors:{
-        borderColor: colors.lightOrange, 
+    audioColors: {
+        borderColor: colors.lightOrange,
         backgroundColor: colors.darkOrange
-    }
+    },
+    sendMessageButton: {
+        backgroundColor: colors.themeColor,
+        height: 44,
+        width: 44,
+        borderRadius: 22,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
 })

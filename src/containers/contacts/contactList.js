@@ -23,12 +23,13 @@ class ContactList extends PureComponent {
     }
 
     componentDidMount() {
-        this.props.actions.contact(true);
+        this.refreshContacts()
     }   
 
     componentWillReceiveProps(nextProps){
         if(! helpers.isEqual(nextProps.appContacts,this.state.allContacts)){
-            this.setState({ allContacts:nextProps.appContacts })
+            let sortedContacts = _.sortBy(nextProps.appContacts, (k) => { return (k.savedName || k.userName).toLowerCase() });
+            this.setState({ allContacts:sortedContacts })
         }
     }
 
@@ -50,11 +51,15 @@ class ContactList extends PureComponent {
         }
     }
 
+    refreshContacts(){
+        this.props.actions.contact(true);
+    }
+
     render() {
 
         return (
             <View style={{ flex: 1 }} >
-                <ContactsHeader onContactSearch={(searchText)=> this.onContactSearch(searchText)} appContacts={this.state.allContacts} {...this.props} />
+                <ContactsHeader refreshContacts={()=> this.refreshContacts()} onContactSearch={(searchText)=> this.onContactSearch(searchText)} appContacts={this.state.allContacts} {...this.props} />
                 <VirtualizedList
                     data={this.state.allContacts}
                     renderItem={({ item, index }) => this._renderItem(item, index)}
@@ -68,6 +73,7 @@ class ContactList extends PureComponent {
                     progressViewOffset={300} //android support
                     maxToRenderPerBatch={20}
                     initialNumToRender={20}
+                    keyboardShouldPersistTaps={'always'}
                     getItemLayout={(data, index) => (
                         { length: 100, offset: 100 * index, index }
                     )}

@@ -195,15 +195,19 @@ export function contact(forceUpdate = false) {
 
           await Promise.all(requests);
 
+          let sortedContacts = _.sortBy(appContacts, (k) => { return (k.savedName || k.userName).toLowerCase() });
+
           console.log("?new conctact => ", newCont);
           console.log("appw conctact => ", appContacts);
+
+
           dispatch({
             type: 'contact',
             val: newCont
           });
           dispatch({
             type: 'appContacts',
-            val: appContacts
+            val: sortedContacts
           });
 
         }

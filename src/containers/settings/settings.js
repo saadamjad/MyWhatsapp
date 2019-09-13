@@ -199,7 +199,7 @@ class SettingsScreen extends PureComponent {
                     </TouchableOpacity>
                     <Animated.View style={[styles.nameContainer, { opacity }]}>
                         <Text style={styles.userName}> {userData.userName} </Text>
-                        <Text numberOfLines={1} ellipsizeMode='tail' style={styles.statusText}>Get lost squidward!</Text>
+                        <Text style={styles.statusText}>{userData.aboutMe}</Text>
                     </Animated.View>
                 </Animated.View>
 
@@ -223,7 +223,7 @@ class SettingsScreen extends PureComponent {
 
                             <View style={{ justifyContent: 'space-between', padding: 10, flex: 1 }}>
                                 <Text style={{ color: '#888', fontSize: 14 }}>About </Text>
-                                <Text style={{ color: 'black', fontSize: 15 }}>This is so cool!!! isn't it?</Text>
+                                <Text style={{ color: 'black', fontSize: 15 }}>{userData.aboutMe}</Text>
                             </View>
                             <MaterialCommunityIcons style={styles.settingIcon} size={23} name={'pencil'} color={colors.lightgray} />
                         </TouchableOpacity>
@@ -431,8 +431,8 @@ const styles = StyleSheet.create({
     statusText: {
         color: '#666',
         fontSize: 15,
-        marginLeft: 15,
-        maxHeight: 22
+        marginHorizontal: 15,
+        width:DEVICE_WIDTH - 110
     },
     settingRow: {
         flexDirection: 'row',

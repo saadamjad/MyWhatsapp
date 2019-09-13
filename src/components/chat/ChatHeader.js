@@ -4,16 +4,49 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import _ from 'underscore';
 import colors from './../../appConfig/color'
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import moment from 'moment-timezone';
+
+import firebase from 'react-native-firebase';
+const firestore = firebase.firestore();
 
 export default class ChatHeader extends Component {
 
     constructor(props) {
         super(props);
+        this.userDataListener = null;
+        this.state={
+            isOnline:false,
+            lastSeen:null
+        }
+    }
+
+    componentWillMount(){
+        let {userData} = this.props.navigation.state.params;
+        if(userData){
+            this.getUserData(userData.userID);
+        }
+    }
+
+    getUserData(userID) {
+        this.userDataListener = firestore.collection('users').doc(userID).onSnapshot((userDoc)=>{
+            let userData = userDoc.data();
+            this.setState({ userData,isOnline: userData.isOnline, lastSeen: userData.lastSeen })
+            console.log("userdat afrom listerener => ",userData);
+        });
+    }
+
+    componentWillUnmount(){
+        if(this.userDataListener){
+            this.userDataListener();
+        }
     }
 
     render() {
-        let {userData} = this.props.navigation.state.params;
+        let { userData } = this.props.navigation.state.params;
         let userImage = userData.profilePic ? { uri: userData.profilePic } : require('./../../assets/user.png');
+
+        let headerText = this.state.isOnline ? 'Online' : this.state.lastSeen ? `last seen ${moment(this.state.lastSeen).calendar()}`:false;
+
         return (
             <SafeAreaView style={styles.header}>
                 <View style={{ flexDirection: 'row' }}>
@@ -21,17 +54,20 @@ export default class ChatHeader extends Component {
                         <Ionicons name={'md-arrow-back'} color='white' size={30} />
                         <Image source={userImage} style={styles.pic} />
                     </TouchableOpacity>
-                    <View>
+                    <View style={{justifyContent:'center',alignItems:'flex-start'}}>
                         <Text style={{ fontSize: 18, color: 'white', fontWeight: '400' }}>{userData.savedName || userData.userName}</Text>
-                        <Text style={{ fontSize: 12, color: 'white' }}>Online</Text>
+                        {
+                            headerText &&
+                            <Text style={{ fontSize: 12, color: 'white' }}>{headerText}</Text>
+                        }
                     </View>
                 </View>
                 <View style={{ flexDirection: 'row' }}>
-                    <Icon
+                    <Icon onPress={() => alert('Coming soon in next release')}
                         name="videocam" size={25} color="white"
                         style={{ marginRight: 15 }}
                     />
-                    <Icon
+                    <Icon onPress={() => alert('Coming soon in next release')}
                         name="call" size={25} color="white"
                         style={{ marginRight: 15 }}
                     />

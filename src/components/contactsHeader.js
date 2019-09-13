@@ -249,7 +249,7 @@ export default class contactsHeader extends PureComponent {
                                     ref={this.setMenuRef}
                                     button={<Icon onPress={this.showMenu} name={'more-vertical'} color={'white'} size={22} />}
                                 >
-                                    <MenuItem onPress={() => alert('coming soon in next release')}>Refresh</MenuItem>
+                                    <MenuItem onPress={() => this.props.refreshContacts()}>Refresh</MenuItem>
                                     <MenuItem onPress={() => alert('coming soon in next release')}>Help</MenuItem>
                                 </Menu>
                             </View>

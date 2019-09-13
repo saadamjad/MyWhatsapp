@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { KeyboardAvoidingView, View, Text, VirtualizedList, Dimensions, FlatList, StyleSheet, TouchableOpacity, TextInput, Keyboard, SafeAreaView } from 'react-native';
+import { KeyboardAvoidingView, View, Text, VirtualizedList, Dimensions, FlatList, StyleSheet, TouchableOpacity, TextInput, Keyboard, SafeAreaView,Platform } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import InvertibleScrollView from 'react-native-invertible-scroll-view';
 import Message from './Message';
@@ -11,7 +11,7 @@ export default class ChatMessages extends PureComponent {
     constructor() {
         super();
         this.state = {
-            data: [{ sent: true }, { sent: false }]
+            data: [{ sent: true }, { sent: false },{ sent: true }, { sent: false },{ sent: true }, { sent: false },{ sent: true }, { sent: false },{ sent: true }, { sent: false },{ sent: true }, { sent: false },{ sent: true }, { sent: false },{ sent: true }, { sent: false },{ sent: true }, { sent: false },{ sent: true }, { sent: false },{ sent: true }, { sent: false }]
         }
     }
 
@@ -22,7 +22,7 @@ export default class ChatMessages extends PureComponent {
     render() {
         return (
             <SafeAreaView style={styles.container}>
-                <KeyboardAvoidingView behavior={'padding'}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'android' ? null : 'padding'} enabled style={{ flex: 1 }}>
                     <VirtualizedList
                         data={this.state.data}
                         renderItem={({ item, index }) => <Message key={index} message={item} />}

@@ -10,14 +10,15 @@ export default class UserChat extends Component {
 
     constructor(props) {
         super(props);
+        console.log("user data from props => ", props)
     }
 
     render() {
         return (
-            <ImageBackground style={{flex:1}} source={require('./../../assets/chatBG.png')}>
-                <ChatHeader {...this.props}/>
-                <ChatMessages {...this.props}/>
-                <ChatInput {...this.props}/>
+            <ImageBackground style={{ flex: 1 }} source={require('./../../assets/chatBG.png')}>
+                <ChatHeader {...this.props} />
+                <ChatMessages {...this.props} />
+                <ChatInput {...this.props} />
             </ImageBackground>
         )
     }
