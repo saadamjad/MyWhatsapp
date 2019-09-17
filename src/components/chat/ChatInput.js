@@ -58,6 +58,7 @@ class ChatInput extends Component {
             };
             this.props.chatAction.sentChatMsg(chatObj, userData.userId, this.state.selectedImages);
         }
+        this.setState({ imageLoader: false, msg: '', selectedImagePath: [], disabledSend: false })
     }
 
     render() {
@@ -99,7 +100,7 @@ class ChatInput extends Component {
 
                 {
                     msg != '' &&
-                    <TouchableOpacity onPress={()=> this.sendMessage()} style={styles.sendMessageButton} activeOpacity={0.5}>
+                    <TouchableOpacity onPress={() => this.sendMessage()} style={styles.sendMessageButton} activeOpacity={0.5}>
                         <MaterialCommunityIcons color={'white'} name={'send'} size={22} />
                     </TouchableOpacity>
                 }

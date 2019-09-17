@@ -11,10 +11,6 @@ export default class SingleContact extends PureComponent {
         super();
     }
 
-    componentDidMount(){
-        console.log(this.props.contact)
-    }
-
     render() {
         let {contact} = this.props;
         let userImage = contact.profilePic ? {uri:contact.profilePic} : require('./../../assets/user.png');

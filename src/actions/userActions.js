@@ -173,12 +173,10 @@ export function contact(forceUpdate = false) {
               let phoneNumbers = contact.phoneNumbers;
               let user = await checkUser(phoneNumbers, myCountryCode);
               if (user) {
-                contact['imgUrl'] = user.imgUrl;
                 delete contact['thumbnailPath'];
-                contact['userID'] = user.userID;
                 contact['phoneNumbers'] = [user.defaultNo];
-                contact['isVerified'] = user.isVerified;
-                user['savedName'] = contact.givenName +' '+(contact.familyName||'');
+                user['savedName'] = (contact.givenName || '') +' '+(contact.familyName||'');
+                contact = {...contact,...user};
                 
                 newCont[user.userID] = contact;
                 appContacts.push(user)

@@ -9,7 +9,8 @@ export default class Message extends PureComponent {
     }
 
     render() {
-
+        const {message} = this.props;
+        console.log("messsage => ",this.props.message)
         // const chatLength = this.props.userChatData.length
         // let DateShow = false;
         // let lableDate = '';
@@ -36,7 +37,7 @@ export default class Message extends PureComponent {
 
         return (
             <View style={{ paddingVertical: 5 }}>
-                <Text>asdfs</Text>
+                <Text>{message.msg}</Text>
             </View>
         )
     }

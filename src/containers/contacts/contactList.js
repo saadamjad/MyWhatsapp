@@ -52,7 +52,7 @@ class ContactList extends PureComponent {
     }
 
     refreshContacts(){
-        this.props.actions.contact(true);
+        // this.props.actions.contact(true);
     }
 
     render() {

@@ -10,127 +10,51 @@ import {
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from './../../appConfig/color';
+import * as helpers from './../../helpers';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as userActions from './../../actions/userActions';
+import * as chatActions from './../../actions/chatActions';
+import { thisExpression } from '@babel/types';
 
-const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-const chatData = [
-    {
-        "name": "Tony Stark",
-        "time": "8:54 AM",
-        "message": "Get lost squidward.",
-        "icon": "done",
-        "isViewed": "false",
-        "image": require("./../../assets/users/tony.jpg"),
-        showReadBy: false,
-        readBy: true,
-        lastMsgType: 'image',
-        unReedCount:2
-    },
-    {
-        "time": "11:56 AM",
-        "message": "Space invasion",
-        "icon": "done",
-        "isViewed": true,
-        "name": "Captain Marvel",
-        "image": require("./../../assets/users/captain_marvel.jpg"),
-        showReadBy: true,
-        readBy: true,
-        lastMsgType: 'text',
-    },
-    {
-        "time": "1:34 AM",
-        "message": "I can do this all day.",
-        "icon": "done-all",
-        "iconColor": "msgReadColor",
-        "isViewed": "false",
-        "name": "Captain America",
-        showReadBy: false,
-        lastMsgType: 'text',
-        readBy: false,
-        "image": require("./../../assets/users/captain.jpg")
-    },
-    {
-        "time": "2:12 AM",
-        "message": "Puny god",
-        "icon": "done-all",
-        "isViewed": true,
-        "name": "Hulk",
-        showReadBy: true,
-        lastMsgType: 'image',
-        readBy: true,
-        "image": require("./../../assets/users/hulk.jpg")
-    },
-    {
-        "time": "11:23 AM",
-        "message": "Hey, big guy. Sun's getting real low",
-        "icon": "done",
-        "isViewed": "false",
-        "name": "Natasha Romanoff",
-        showReadBy: false,
-        lastMsgType: 'text',
-        readBy: false,
-        "image": require("./../../assets/users/natasha.jpg")
-    },
-    {
-        "time": "12:36 PM",
-        "message": "Bring me thanos!",
-        "icon": "done-all",
-        "isViewed": true,
-        "name": "Thor",
-        showReadBy: true,
-        lastMsgType: 'text',
-        readBy: false,
-        "image": require("./../../assets/users/thor.jpg")
-    },
-    {
-        "time": "5:06 AM",
-        "message": "Yibambe! Yibambe!",
-        "icon": "done-all",
-        "isViewed": true,
-        "name": "Black panther",
-        showReadBy: false,
-        lastMsgType: 'image',
-        readBy: false,
-        "image": require("./../../assets/users/panther.jpg")
-    },
-    {
-        "time": "11:28 PM",
-        "message": "You have my respect, Stark.",
-        "icon": "done-all",
-        "isViewed": "false",
-        "name": "Thanos",
-        showReadBy: true,
-        lastMsgType: 'text',
-        readBy: true,
-        "image": require("./../../assets/users/thanos.jpg")
-    },
-    {
-        "time": "3:15 PM",
-        "message": "And the new girl, she is a risk.",
-        "icon": "done",
-        "isViewed": "false",
-        "name": "Nick Fury",
-        showReadBy: false,
-        lastMsgType: 'image',
-        readBy: false,
-        "image": require("./../../assets/users/nick.jpg")
-    },
+class ChatTab extends React.PureComponent {
+    constructor(props) {
+        super(props);
+        this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+        this.state={
+            chatUsers:props.chatUsers || []
+        }
+    }
 
-];
+    componentWillMount() {
+        this.props.chatAction.getAllChats();
+    }
 
-class ChatTab extends React.Component {
-    constructor() {
-        super();
+    componentWillReceiveProps(nextProps){
+        if(!helpers.isEqual(this.props.chatUsers,nextProps.chatUsers)){
+            this.setState({ chatUsers:nextProps.chatUsers })
+        }
+    }
+
+    openContacts() {
+        this.props.navigation.navigate('ContactList');
     }
 
     renderRow(props) {
+        const { allContacts } = this.props;
+        let userImage = props.profilePic ? { uri: props.profilePic } : require('./../../assets/user.png');
+
+        let userChatData = allContacts && allContacts[props.userId];
+
+        const profileName = userChatData && `${userChatData.givenName || ''} ${userChatData.familyName || ''}` || props.mobileNo;
         return (
-            <TouchableOpacity activeOpacity={0.5} onPress={()=> this.props.navigation.navigate('UserChat')}>
+            <TouchableOpacity activeOpacity={0.5} onPress={() => this.props.navigation.navigate('UserChat', { userData: userChatData })}>
                 <View style={styles.row}>
-                    <Image source={props.image} style={styles.pic} />
+                    <Image source={userImage} style={styles.pic} />
                     <View>
                         <View style={styles.nameContainer}>
-                            <Text style={styles.nameTxt}>{props.name}</Text>
-                            <Text style={[styles.time,{color:props.unReedCount > 0 ? colors.themeColor : '#777'}]}>{props.time}</Text>
+                            <Text style={styles.nameTxt}>{profileName}</Text>
+                            <Text style={[styles.time, { color: props.unReedCount > 0 ? colors.themeColor : '#777' }]}>{props.time}</Text>
                         </View>
                         <View style={styles.msgContainer}>
                             {
@@ -145,7 +69,7 @@ class ChatTab extends React.Component {
                                                 :
                                                 null
                                         }
-                                        {props.message}
+                                        {props.lastMsg}
                                     </Text>
                                     :
                                     <Text numberOfLines={1} ellipsizeMode="tail" style={styles.msgTxt}>
@@ -164,8 +88,8 @@ class ChatTab extends React.Component {
                             }
                             {
                                 props.unReedCount > 0 ?
-                                    <View style={{height:20,width:20,justifyContent:'center',alignItems:'center',backgroundColor:colors.themeColor,borderRadius:10}}>
-                                        <Text style={{ textAlign: 'center',lineHeight:20, color: 'white', fontSize: 12 }}>{props.unReedCount}</Text>
+                                    <View style={{ height: 20, width: 20, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.themeColor, borderRadius: 10 }}>
+                                        <Text style={{ textAlign: 'center', lineHeight: 20, color: 'white', fontSize: 12 }}>{props.unReedCount}</Text>
                                     </View>
                                     :
                                     null
@@ -177,22 +101,19 @@ class ChatTab extends React.Component {
         )
     }
 
-    openContacts(){
-        this.props.navigation.navigate('ContactList');
-    }
-
     render() {
+
         return (
             <View style={{ flex: 1 }} >
                 <ListView
-                    dataSource={ds.cloneWithRows(chatData)}
+                    dataSource={this.ds.cloneWithRows(this.state.chatUsers || [])}
                     renderRow={props => (
                         this.renderRow(props)
                     )}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps={'handled'}
                 />
-                <TouchableOpacity style={styles.textStatusButton} onPress={()=> this.openContacts()} activeOpacity={0.5}>
+                <TouchableOpacity style={styles.textStatusButton} onPress={() => this.openContacts()} activeOpacity={0.5}>
                     <MaterialIcons color={'white'} name={'chat'} size={22} />
                 </TouchableOpacity>
             </View>
@@ -200,7 +121,22 @@ class ChatTab extends React.Component {
     }
 }
 
-export default ChatTab;
+function mapStateToProps(state) {
+    return {
+        userData: state.user.userData,
+        appContacts: state.user.appContacts,
+        allContacts: state.user.allContacts,
+        chatUsers: state.Chat.ChatUsers
+    };
+}
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators(userActions, dispatch),
+        chatAction: bindActionCreators(chatActions, dispatch),
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ChatTab);
 
 const styles = StyleSheet.create({
     row: {
