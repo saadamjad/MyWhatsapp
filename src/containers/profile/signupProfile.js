@@ -62,7 +62,6 @@ class ProfileInfo extends Component {
 
             if (!userId) {
                 this.props.actions.registerUser(data).then((res) => {
-                    console.log("regsiterd")
                     Toast.show('Regsitered successfully. Enjoy MyWhatsapp!', {
                         duration: 3000,
                         position: Toast.positions.BOTTOM,

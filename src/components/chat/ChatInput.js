@@ -13,8 +13,8 @@ import * as chatActions from './../../actions/chatActions';
 const { width, height } = Dimensions.get('window');
 class ChatInput extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             imageLoader: false,
             msg: '',
@@ -26,6 +26,7 @@ class ChatInput extends Component {
             showFileTypeSelector: false
         }
         this.msgInput = null;
+        this.toUserData = props.navigation.state.params.userData;
     }
 
     showFileTypeSelector() {
@@ -40,7 +41,7 @@ class ChatInput extends Component {
     sendMessage() {
         if (!this.state.msg.trim() && this.state.selectedImages.length == 0) return;
 
-        let { userData } = this.props.navigation.state.params;
+        let { userData } = this.props;
         if (this.state.editedMsg) {
             this.props.userChatAction.updateMsg(encrypt(this.state.msg.trim()), this.props.selectedUser.userId, this.props.selectedMsg.chatKey);
             this.closeEdit()
@@ -56,7 +57,7 @@ class ChatInput extends Component {
                 readBy: [userData.userId],
                 replayMsg: replayMsg ? { senderID: replayMsg.senderID, senderName: replayMsg.senderName, msg: replayMsg.msg, msgType: replayMsg.msgType, imgUrl: replayMsg.imgUrl, chatKey: replayMsg.chatKey } : null
             };
-            this.props.chatAction.sentChatMsg(chatObj, userData.userId, this.state.selectedImages);
+            this.props.chatAction.sentChatMsg(chatObj, this.toUserData.userId, this.state.selectedImages);
         }
         this.setState({ imageLoader: false, msg: '', selectedImagePath: [], disabledSend: false })
     }
@@ -170,7 +171,7 @@ class ChatInput extends Component {
 
 function mapStateToProps(state) {
     return {
-        userData: state.user.userdata,
+        userData: state.user.userData,
         ChatUsers: state.Chat.ChatUsers,
         allContacts: state.user.allContacts,
     }
@@ -186,7 +187,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(ChatInput);
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1
+        // flex: 1
     },
     input: {
         backgroundColor: 'white',

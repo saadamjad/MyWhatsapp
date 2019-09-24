@@ -31,7 +31,6 @@ export default class ChatHeader extends Component {
         this.userDataListener = firestore.collection('users').doc(userID).onSnapshot((userDoc)=>{
             let userData = userDoc.data();
             this.setState({ userData,isOnline: userData.isOnline, lastSeen: userData.lastSeen })
-            console.log("userdat afrom listerener => ",userData);
         });
     }
 

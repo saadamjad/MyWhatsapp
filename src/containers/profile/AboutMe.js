@@ -17,7 +17,6 @@ class AboutMe extends Component {
             editAboutMe: false,
             aboutMe: this.props.userData.aboutMe || 'Using MyWhatsApp!'
         }
-        console.log("about me => ", this.props.userData)
         this.editAboutMeRef = null;
     }
 

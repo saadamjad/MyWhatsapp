@@ -27,8 +27,6 @@ export default class ImagePicker extends Component {
       selected: images,
     });
 
-    console.log(current);
-    console.log(this.state.selected);
   }
 
   render() {

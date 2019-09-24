@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, ImageBackground, VirtualizedList, Dimensions, Image, StyleSheet, TouchableOpacity, TextInput, Keyboard, SafeAreaView } from 'react-native';
+import { View, Text, ImageBackground,KeyboardAvoidingView, VirtualizedList, Dimensions, Image, StyleSheet, TouchableOpacity, TextInput, Keyboard, SafeAreaView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import _ from 'underscore';
 import ChatMessages from './../../components/chat/ChatMessages';
@@ -10,7 +10,6 @@ export default class UserChat extends Component {
 
     constructor(props) {
         super(props);
-        console.log("user data from props => ", props)
     }
 
     render() {

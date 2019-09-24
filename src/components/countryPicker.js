@@ -20,7 +20,6 @@ export default class CountryPicker extends Component {
     }
 
     searchCountry = _.debounce((text) => {
-        console.log("inside onChangeCountry")
         let countryData = [...countries];
         let filteredCountries = countryData.filter((country) => {
             return country.name.common && country.name.common.toLowerCase().indexOf(text.toLowerCase()) >= 0

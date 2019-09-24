@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
-import { KeyboardAvoidingView, View, Text, VirtualizedList, Dimensions, FlatList, StyleSheet, TouchableOpacity, TextInput, Keyboard, SafeAreaView, Platform } from 'react-native';
+import { KeyboardAvoidingView, ListView, Text, VirtualizedList, Dimensions, FlatList, StyleSheet, TouchableOpacity, TextInput, Keyboard, SafeAreaView, Platform } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import InvertibleScrollView from 'react-native-invertible-scroll-view';
+// import InvertibleScrollView from 'react-native-invertible-scroll-view';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -11,6 +11,7 @@ import * as chatActions from './../../actions/chatActions';
 import Message from './Message';
 
 import _ from 'underscore';
+import { ScrollView } from 'react-native-gesture-handler';
 
 class ChatMessages extends PureComponent {
 
@@ -19,8 +20,9 @@ class ChatMessages extends PureComponent {
         let { userData } = props.navigation.state.params;
         this.state = {
             data: [],
-            chatData: props.userChatData[userData.userID] || []
+            chatData: props.userChatData[userData.userID] || [],
         }
+        this.toUserData = props.navigation.state.params.userData;
     }
 
     componentWillMount() {
@@ -35,14 +37,9 @@ class ChatMessages extends PureComponent {
         let { userData } = this.props.navigation.state.params;
         if (nextProps.userChatData && nextProps.userChatData[userData.userID].length > 0) {
             // this.resetReadData(this.state.userID, this.state.selectedUser.userID);
-            this.setState({ chatData: nextProps.userChatData[userData.userID] },()=>{
-                // this.messageList.scrollToEnd()
+            this.setState({ chatData: nextProps.userChatData[userData.userID] }, () => {
+                // this.messageList.scrollToEnd();
             });
-            // this.flatList && this.flatList.scrollToEnd({ animated: true })
-            // if (nextProps.userChatData[this.state.selectedUser.userID].length >= 8)
-            //     this.setState({ isInvertible: true, chatData: nextProps.userChatData[this.state.selectedUser.userID] })
-            // else
-            //     this.setState({ isInvertible: false, chatData: nextProps.userChatData[this.state.selectedUser.userID] })
         }
     }
 
@@ -53,40 +50,65 @@ class ChatMessages extends PureComponent {
     render() {
         const chatData = _.sortBy(this.state.chatData, (k) => { return k.msgTime });
         return (
-            <SafeAreaView style={styles.container}>
-                <KeyboardAvoidingView behavior={Platform.OS === 'android' ? null : 'padding'} enabled style={{ flex: 1 }}>
-                    <VirtualizedList
-                        data={chatData}
-                        renderItem={({ item, index }) => <Message key={index} message={item} />}
-                        onEndReached={() => this.getMoreMessage()}
-                        ref={listRef => { this.messageList = listRef; }}
-                        windowSize={30}
-                        keyExtractor={(item, index) => item.key}
-                        initialScrollIndex={10}
-                        getItem={(data, index) => data[index]}
-                        style={{ paddingHorizontal: 10 }}
-                        getItemCount={data => data.length}
-                        onEndReachedThreshold={0.5}
-                        progressViewOffset={300} //android support
-                        maxToRenderPerBatch={20}
-                        initialNumToRender={20}
-                        getItemLayout={(data, index) => (
-                            { length: 100, offset: 100 * index, index }
-                        )}
-                    />
-                </KeyboardAvoidingView>
-            </SafeAreaView>
+            // <KeyboardAvoidingView behavior={Platform.OS === 'android' ? null : 'padding'} enabled style={{flex:1}}>
+
+            // <VirtualizedList
+            //     data={chatData.reverse()}
+            //     inverted={true}
+            //     // data={chatData}
+            //     renderItem={({ item, index }) => <Message key={`message${item.key}`} message={item} isFirst={index == chatData.length-1} prevMsg={chatData[index-1]} />}
+            //     onEndReached={() => this.getMoreMessage()}
+            //     ref={listRef => { this.messageList = listRef; }}
+            //     windowSize={30}
+            //     keyExtractor={(item, index) => item.key}
+            //     // initialScrollIndex={10}
+            //     getItem={(data, index) => data[index]}
+            //     style={{ paddingHorizontal: 10,flex:1 }}
+            //     getItemCount={data => data.length}
+            //     onEndReachedThreshold={0.5}
+            //     progressViewOffset={300} //android support
+            //     maxToRenderPerBatch={20}
+            //     initialNumToRender={20}
+            //     getItemLayout={(data, index) => (
+            //         { length: 100, offset: 100 * index, index }
+            //     )}
+            // />
+            // </KeyboardAvoidingView>
+            <KeyboardAvoidingView behavior={Platform.OS === 'android' ? null : 'padding'} style={{ flex: 1 }}>
+                <VirtualizedList
+                    data={chatData.reverse()}
+                    inverted={true}
+                    renderItem={({ item, index }) => (
+                        <Message
+                            key={`message${item.key}`}
+                            message={item}
+                            isFirst={index == chatData.length - 1}
+                            prevMsg={chatData[index + 1]}
+                            toUserData={this.toUserData}
+                        />
+                    )}
+                    ref={reff => { this.messageList = reff; }}
+                    windowSize={30}
+                    keyExtractor={(item, index) => item.key}
+                    getItem={(data, index) => data[index]}
+                    style={{ paddingHorizontal: 10 }}
+                    getItemCount={data => data.length}
+                    onEndReachedThreshold={0.5}
+                    progressViewOffset={300} //android support
+                    maxToRenderPerBatch={20}
+                    initialNumToRender={20}
+                    getItemLayout={(data, index) => (
+                        { length: 100, offset: 100 * index, index }
+                    )}
+                />
+            </KeyboardAvoidingView>
         )
     }
 }
 
 function mapStateToProps(state) {
-    console.log("state.Chat.userChatData => ", state.Chat.userChatData)
     return {
-        // userData: state.user.userData,
         userChatData: state.Chat.userChatData
-        // appContacts: state.user.appContacts,
-
     };
 }
 function mapDispatchToProps(dispatch) {
@@ -97,9 +119,3 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChatMessages);
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    }
-})

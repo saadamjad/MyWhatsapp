@@ -11,14 +11,12 @@ export function sentChatMsg(chatObj, toUserID, selectedImages = []) {
             let loginUserId = getState().user.userData.userId;
             let userIDUrl = (loginUserId < toUserID) ? (loginUserId + '_' + toUserID) : (toUserID + '_' + loginUserId);
             let oldunReedCount = 0;
-            console.log("userIDUrl => ", userIDUrl);
 
             let initRef = await firestore.collection('chat_init').doc(toUserID).get();
             if(initRef.exists){
                 oldunReedCount = initRef.data()[loginUserId] && initRef.data()[loginUserId].unReedCount || 0;
             }
 
-            console.log("oldunReedCount => ", oldunReedCount);
             //initiate chat for the list on home page
             firestore.collection(`chat_init`).doc(loginUserId).set({ [toUserID]: { showReadBy: true, lastMsgType: chatObj.msgType, lastMsg: chatObj.msg, readBy: false, msgTime: chatObj.msgTime, imgUrl: chatObj.imgUrl } }, { merge: true }).then((d) => console.log);
 

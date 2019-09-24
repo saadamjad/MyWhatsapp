@@ -156,7 +156,6 @@ export function registerOnChangeData(aboutMe) {
 export function contact(forceUpdate = false) {
   return async function (dispatch, getState) {
     let userContacts = getState().user && getState().user.allContacts;
-    console.log("state user contacts => ", userContacts)
     if (!userContacts || forceUpdate) {
       Contacts.getAll(async (err, allContacts) => {
 
@@ -194,10 +193,6 @@ export function contact(forceUpdate = false) {
           await Promise.all(requests);
 
           let sortedContacts = _.sortBy(appContacts, (k) => { return (k.savedName || k.userName).toLowerCase() });
-
-          console.log("?new conctact => ", newCont);
-          console.log("appw conctact => ", appContacts);
-
 
           dispatch({
             type: 'contact',
